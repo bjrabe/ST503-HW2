@@ -1,0 +1,52 @@
+---
+title: "ST503-HW3"
+format: html
+code-overflow: wrap
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+First we load the `faraway` package so we have access to the requisite data sets for the homework.
+
+```{r}
+library(faraway)
+```
+
+## Problem 1
+
+For this problem, we do excercise 3.4 in LMR. We start by viewing the structure and first few rows of the `sat` data.
+
+```{r}
+str(sat)
+head(sat)
+```
+
+### Part (a)
+
+First we fit a model with total sat score as the response and expend, ratio and salary as predictors.
+
+```{r}
+sat_fit_a <- lm(total ~ expend + ratio + salary, data = sat)
+sat_fit_a |> summary()
+```
+
+To test the hypothesis that $$\beta_{salary} = 0$$, we start with the following pivotal quantity which has a t distribution with n-p degrees of freedom:
+
+$$\frac{\hat{\beta}_{salary} - \beta_{salary}}{s.e.(\hat{\beta}_{salary})}$$ To turn the pivotal quantity into a test statistic, we set $$\beta_{salary} = 0$$. This is our null hypothesis.
+
+Then using the estimate and standard error from the linear model summary output, we have $$t_{obs} = \frac{\hat{\beta}_{salary}}{s.e.(\hat{\beta}_{salary})} = \frac{-8.823}{4.697} = -1.878$$.
+
+Finally if $$T \sim t_{n - p}$$, we have for a two-sided test that 
+
+$$pvalue = 2P(T \ge |t_{obs}|) = 2(1 - P(T < |t_{obs}|))$$ which in R is calculated as `2*(1-pt(1.878, 46))` since n-p is 46.
+
+```{r}
+2*(1-pt(1.878, 46))
+```
+
+We see this p-value matches that given in the summary output for the linear model. At the 0.05 significance level, we fail to reject the null hypothesis that $$\beta_{salary} = 0$$, since the p-value is greater than 0.05. Thus we do NOT have evidence to reject the claim that $$\beta_{salary} = 0$$.
+
+## Problem 3
+
+## Problem 4
