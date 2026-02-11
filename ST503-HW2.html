@@ -190,7 +190,7 @@ F-statistic: 4.066 on 3 and 46 DF,  p-value: 0.01209</code></pre>
 <p>To test the hypothesis that <span class="math display">\[\beta_{salary} = 0\]</span>, we start with the following pivotal quantity which has a t distribution with n-p degrees of freedom:</p>
 <p><span class="math display">\[\frac{\hat{\beta}_{salary} - \beta_{salary}}{s.e.(\hat{\beta}_{salary})}\]</span> To turn the pivotal quantity into a test statistic, we set <span class="math display">\[\beta_{salary} = 0\]</span>. This is our null hypothesis.</p>
 <p>Then using the estimate and standard error from the linear model summary output, we have <span class="math display">\[t_{obs} = \frac{\hat{\beta}_{salary}}{s.e.(\hat{\beta}_{salary})} = \frac{-8.823}{4.697} = -1.878\]</span>.</p>
-<p>Finally if <span class="math display">\[T \sim t_{n - p}\]</span>, we have for a two-sided test that</p>
+<p>Finally since our null distribution is <span class="math display">\[T \sim t_{n - p}\]</span>, we have for a two-sided test that</p>
 <p><span class="math display">\[pvalue = 2P(T \ge |t_{obs}|) = 2(1 - P(T &lt; |t_{obs}|))\]</span> which in R is calculated as <code>2*(1-pt(1.878, 46))</code> since n-p is 46.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span><span class="fu">pt</span>(<span class="fl">1.878</span>, <span class="dv">46</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -199,13 +199,910 @@ F-statistic: 4.066 on 3 and 46 DF,  p-value: 0.01209</code></pre>
 </div>
 </div>
 <p>We see this p-value matches that given in the summary output for the linear model. At the 0.05 significance level, we fail to reject the null hypothesis that <span class="math display">\[\beta_{salary} = 0\]</span>, since the p-value is greater than 0.05. Thus we do NOT have evidence to reject the claim that <span class="math display">\[\beta_{salary} = 0\]</span>.</p>
+<p>Next we test the null hypothesis that <span class="math display">\[\beta_{salary} = \beta_{ratio} = \beta_{expend} = 0\]</span> versus the alternative hypothesis that at least one beta coefficient is non-zero. The test statistic for this test is <span class="math display">\[F_{obs} = \frac{MSR}{MSE} = 4.066\]</span>, the last equality following from the output of the summary of our linear model that we fit above. The null distribution for the test is an F distribution with p-1 and n-p degrees of freedom, so if <span class="math display">\[F \sim F_{p-1,n-p}\]</span>, then the p-value for the test is given by <span class="math display">\[pvalue = P(F \ge F_{obs}) = 1 - P(F &lt; F_{obs})\]</span>. In R code, we can calculate this as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">-</span><span class="fu">pf</span>(<span class="fl">4.066</span>, <span class="dv">3</span>, <span class="dv">46</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.01208878</code></pre>
+</div>
+</div>
+<p>We see this p-value matches that from the summary output for our linear model fit above. At the 0.05 significance level, we reject the null hypothesis that <span class="math display">\[\beta_{salary} = \beta_{ratio} = \beta_{expend} = 0\]</span>, meaning we have evidence that at least one beta parameter is non-zero.</p>
+<p>However, when we look at the p-values for the individual predictors, we see that at the 0.05 significance level, we do not have evidence that any of the beta parameters are non-zero for any of the predictors, suggesting that none of the predictors have an effect on the response. How is this congruent with the results of the F-test? This is addressed in the Student-to-Student discussion on the Moodle page. It is a consequence of high correlation between the predictors.</p>
+</section>
+<section id="part-b" class="level3">
+<h3 class="anchored" data-anchor-id="part-b">Part (b)</h3>
+<p>Now we add <code>takers</code> to the model from part (a).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sat_fit_b <span class="ot">&lt;-</span> <span class="fu">lm</span>(total <span class="sc">~</span> expend <span class="sc">+</span> ratio <span class="sc">+</span> salary <span class="sc">+</span> takers, <span class="at">data =</span> sat)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>sat_fit_b <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = total ~ expend + ratio + salary + takers, data = sat)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-90.531 -20.855  -1.746  15.979  66.571 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 1045.9715    52.8698  19.784  &lt; 2e-16 ***
+expend         4.4626    10.5465   0.423    0.674    
+ratio         -3.6242     3.2154  -1.127    0.266    
+salary         1.6379     2.3872   0.686    0.496    
+takers        -2.9045     0.2313 -12.559 2.61e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 32.7 on 45 degrees of freedom
+Multiple R-squared:  0.8246,    Adjusted R-squared:  0.809 
+F-statistic: 52.88 on 4 and 45 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Now we want to test the null hypothesis that <span class="math display">\[\beta_{takers} = 0\]</span>, versus the alternative hypothesis that <span class="math display">\[\beta_{takers} \ne 0\]</span>. We could show our work the same as we did in part (a), but since we have already shown the work once, we will just use the output from the summary. We see that the p-value for <code>takers</code> is 2.61e-16, which is much less than 0.05. Thus at the 0.05 significance level we reject the null hypothesis of <span class="math display">\[\beta_{takers} = 0\]</span>. Hence we have evidence at the 0.05 significance level that <span class="math display">\[\beta_{takers} \ne 0\]</span>.</p>
+<p>Next we wish to compare this model to the model in part (a) using an F-test. The null hypothesis is that the model in part (a), the reduced model, explains the same amount of variability in the response as the model in part (b) (the full model) does. Let <span class="math display">\[SSE_{k}\]</span> denote the sum of squared errors for model k, where k takes value a for the reduced model and b for the full model. Then our test statistic is <span class="math display">\[F_{obs} = \frac{\frac{SSE_a - SSE_b}{q}}{\frac{SSE_b}{n - p}}\]</span>, where q is the difference in dimension between the two models, which is q=1 in this case, and n and p are chosen from the full model. We calculate the value of the F-statistic:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>SSE_a <span class="ot">&lt;-</span> <span class="fu">t</span>(sat_fit_a<span class="sc">$</span>residuals)<span class="sc">%*%</span>sat_fit_a<span class="sc">$</span>residuals</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>SSE_b <span class="ot">&lt;-</span> <span class="fu">t</span>(sat_fit_b<span class="sc">$</span>residuals)<span class="sc">%*%</span>sat_fit_b<span class="sc">$</span>residuals</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>F_obs <span class="ot">&lt;-</span> ((SSE_a <span class="sc">-</span> SSE_b)<span class="sc">/</span><span class="dv">1</span>)<span class="sc">/</span>(SSE_b<span class="sc">/</span><span class="dv">45</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>F_obs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         [,1]
+[1,] 157.7379</code></pre>
+</div>
+</div>
+<p>Then since the null distribution is <span class="math display">\[F \sim F_{q,n - p}\]</span>, where q=1 and n-p=45, the p-value for the test is <span class="math display">\[pvalue = P(F \ge F_{obs}) = 1 - P(F &lt; F_{obs})\]</span>. We calculate this as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">-</span><span class="fu">pf</span>(<span class="fl">157.74</span>, <span class="dv">1</span>, <span class="dv">45</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.220446e-16</code></pre>
+</div>
+</div>
+<p>We can compare our results with the output of an F-test using R code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(sat_fit_a, sat_fit_b)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: total ~ expend + ratio + salary
+Model 2: total ~ expend + ratio + salary + takers
+  Res.Df    RSS Df Sum of Sq      F    Pr(&gt;F)    
+1     46 216812                                  
+2     45  48124  1    168688 157.74 2.607e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>We see that our calculated F-statistic matches that provided in the table. Our calculated p-value is very close to that provided in the table, the tiny difference likely being related to how the <code>anova</code> function is handling rounding. Since the p-value is much less than 0.05, we have evidence against the null hypothesis at the 0.05 significance level. That is, we have evidence that the full model in part (b) explains more of the variability in the response than the reduced model in part (a) does.</p>
+<p>Finally, to demonstrate the equivalence of the F-test and t-test in this case, note that the t-statistic of -12.559 from the full model, when squared, equals (roughly, due to rounding) the F-statistic of 157.74. As discussed in the lecture, this is in general the case when the reduced model is formed by putting exactly one <span class="math display">\[\beta_{k} = 0\]</span>.</p>
 </section>
 </section>
 <section id="problem-3" class="level2">
 <h2 class="anchored" data-anchor-id="problem-3">Problem 3</h2>
+<p>For this problem, we do exercise 3.6 in LMR. We use the <code>happy</code> data set. We start by viewing its structure and first few rows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(happy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   39 obs. of  5 variables:
+ $ happy: num  10 8 8 8 4 9 8 6 5 4 ...
+ $ money: num  36 47 53 35 88 175 175 45 35 55 ...
+ $ sex  : num  0 1 0 1 1 1 1 0 1 1 ...
+ $ love : num  3 3 3 3 1 3 3 2 2 1 ...
+ $ work : num  4 1 5 3 2 4 4 3 2 4 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(happy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  happy money sex love work
+1    10    36   0    3    4
+2     8    47   1    3    1
+3     8    53   0    3    5
+4     8    35   1    3    3
+5     4    88   1    1    2
+6     9   175   1    3    4</code></pre>
+</div>
+</div>
+<p>Now we fit a regression model with <code>happy</code> as the response and the other four variables as predictors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>lm_fit_happy <span class="ot">&lt;-</span> <span class="fu">lm</span>(happy <span class="sc">~</span>., <span class="at">data =</span> happy)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>lm_fit_happy <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = happy ~ ., data = happy)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.7186 -0.5779 -0.1172  0.6340  2.0651 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -0.072081   0.852543  -0.085   0.9331    
+money        0.009578   0.005213   1.837   0.0749 .  
+sex         -0.149008   0.418525  -0.356   0.7240    
+love         1.919279   0.295451   6.496 1.97e-07 ***
+work         0.476079   0.199389   2.388   0.0227 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.058 on 34 degrees of freedom
+Multiple R-squared:  0.7102,    Adjusted R-squared:  0.6761 
+F-statistic: 20.83 on 4 and 34 DF,  p-value: 9.364e-09</code></pre>
+</div>
+</div>
+<section id="part-a-1" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-1">Part (a)</h3>
+<p>We see from the summary output that <code>love</code> and <code>work</code> are the significant predictors at the 1% level.</p>
+</section>
+<section id="part-b-1" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-1">Part (b)</h3>
+<p>Now we use the <code>table</code> function to produce a numerical summary of the response.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(happy<span class="sc">$</span>happy) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ 2  3  4  5  6  7  8  9 10 
+ 1  1  4  5  2  8 14  3  1 </code></pre>
+</div>
+</div>
+<p>We see there are more values at the high end of the happiness scale. In other words, the distribution is left-skewed. So the assumption that the response is normally distributed is questionable. And the response not being normally distributed implies the errors are not normally distributed. This follows from the logically equivalent contrapositive statement that normally distributed errors implies normally distributed response, which we showed in lecture. Thus the assumption of normality of errors, which is needed for a valid t-test, is violated.</p>
+</section>
+<section id="part-c" class="level3">
+<h3 class="anchored" data-anchor-id="part-c">Part (c)</h3>
+<p>Now we use the permutation test to test the significance of the <code>money</code> predictor.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="do">###Set seed for reproducibility</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="do">###Specify number of permutations to be done</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>n <span class="ot">=</span> <span class="dv">10000</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="do">### Initialize vectors to store null values t-statistics</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>t_money <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, n)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="do">### Calculate null values of t-statistic by permuting the money predictor and update the above vector</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n){</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  lm_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(happy <span class="sc">~</span> <span class="fu">sample</span>(money) <span class="sc">+</span> sex <span class="sc">+</span> love <span class="sc">+</span> work, <span class="at">data =</span> happy)</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  t_money[i] <span class="ot">&lt;-</span> <span class="fu">summary</span>(lm_fit)<span class="sc">$</span>coefficients[<span class="dv">2</span>,<span class="dv">3</span>]</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="do">###calculate the p-value </span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(t_money <span class="sc">&gt;</span> <span class="fu">summary</span>(lm_fit_happy)<span class="sc">$</span>coefficients[<span class="dv">2</span>,<span class="dv">3</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.0349</code></pre>
+</div>
+</div>
+<p>We see that our p-value from the permutation test is less than 0.05, so we reject the null hypothesis <span class="math display">\[\beta_{money} = 0\]</span>. That is, at the 0.05 significance level, we DO have evidence that the <code>money</code> predictor has a relationship with happiness, in the presence of the other predictors <code>sex</code>, <code>love</code>, and <code>work</code>.</p>
+</section>
+<section id="part-d" class="level3">
+<h3 class="anchored" data-anchor-id="part-d">Part (d)</h3>
+<p>Here we plot a histogram of the permutation t-statistics.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(t_money, <span class="at">freq =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ST503-HW2_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="part-e" class="level3">
+<h3 class="anchored" data-anchor-id="part-e">Part (e)</h3>
+<p>Here we overlay a t-density over the histogram. Note n=39 and p-1=4, so n-p = 39-5 = 34</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="at">length =</span> <span class="dv">300</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(t_money, <span class="at">freq =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(grid, <span class="fu">dt</span>(grid, <span class="dv">34</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ST503-HW2_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see that the empirical distribution of the t-statistic matches reasonably well with the expected null distribution, which is a t-distribution with 34 degrees of freedom.</p>
+</section>
+<section id="part-f" class="level3">
+<h3 class="anchored" data-anchor-id="part-f">Part (f)</h3>
+<p>Now we use a nonparametric bootstrap procedure to determine the 90% and 95% confidence intervals for <span class="math display">\[\beta_{money}\]</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="do">###set number of bootstrap resamples</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize a vector to store bootstrap estimates for beta_money</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>beta_money_boot <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, B)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co"># create bootstrap resample estimates for beta_money and update the above vector</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>B){</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  resampled_residuals <span class="ot">&lt;-</span> <span class="fu">sample</span>(lm_fit_happy<span class="sc">$</span>residuals, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  y_boot <span class="ot">&lt;-</span> lm_fit_happy<span class="sc">$</span>fitted.values <span class="sc">+</span> resampled_residuals</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  lm_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y_boot <span class="sc">~</span>., <span class="at">data =</span> happy)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  beta_money_boot[i] <span class="ot">&lt;-</span> lm_fit<span class="sc">$</span>coefficients[<span class="st">'money'</span>]</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="co"># determine 90% CI</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>CI_90_boot <span class="ot">&lt;-</span> <span class="fu">quantile</span>(beta_money_boot, <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>))</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a><span class="co"># determine 95% CI</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>CI_95_boot <span class="ot">&lt;-</span> <span class="fu">quantile</span>(beta_money_boot, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a><span class="co">#print</span></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>CI_90_boot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         5%         95% 
+0.001081423 0.017755523 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>CI_95_boot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         2.5%         97.5% 
+-0.0005412209  0.0193282482 </code></pre>
+</div>
+</div>
+<p>We can compare this with the 90% and 95% CIs obtained from t-test.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>CI_90_t <span class="ot">&lt;-</span> <span class="fu">confint</span>(lm_fit_happy, <span class="at">level =</span> <span class="fl">0.9</span>)[<span class="dv">2</span>,]</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>CI_95_t <span class="ot">&lt;-</span> <span class="fu">confint</span>(lm_fit_happy)[<span class="dv">2</span>,]</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>CI_90_boot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         5%         95% 
+0.001081423 0.017755523 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>CI_90_t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        5 %        95 % 
+0.000763349 0.018392799 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>CI_95_boot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         2.5%         97.5% 
+-0.0005412209  0.0193282482 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>CI_95_t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       2.5 %       97.5 % 
+-0.001015941  0.020172088 </code></pre>
+</div>
+</div>
+<p>We see the intervals obtained from t-test are similar to those obtained with the bootstrap, with the bootstrap intervals being slightly narrower, as was the case for the examples in the lecture.</p>
+<p>The null value <span class="math display">\[\beta_{money} = 0\]</span> doesn’t fall in the 90% CI, so we reject the null at the 90% significance level. However, the null value of 0 does fall in the 95% CI, so we fail to reject the null at the 95% significance level. This is the case for both the bootstrap interval estimate and t-test interval estimate.</p>
+<p>This is incongruent with the permutation test results, for which we had evidence to reject the null hypothesis <span class="math display">\[\beta_{money} = 0\]</span>.</p>
+</section>
 </section>
 <section id="problem-4" class="level2">
 <h2 class="anchored" data-anchor-id="problem-4">Problem 4</h2>
+<p>Here we do exercise 3.7 in LMR. We are using the <code>punting</code> data. We start by viewing the structure of the data set and the first few rows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(punting)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   13 obs. of  7 variables:
+ $ Distance: num  162 144 148 164 192 ...
+ $ Hang    : num  4.75 4.07 4.04 4.18 4.35 4.16 4.43 3.2 3.02 3.64 ...
+ $ RStr    : int  170 140 180 160 170 150 170 110 120 130 ...
+ $ LStr    : int  170 130 170 160 150 150 180 110 110 120 ...
+ $ RFlex   : int  106 92 93 103 104 101 108 86 90 85 ...
+ $ LFlex   : int  106 93 78 93 93 87 106 92 86 80 ...
+ $ OStr    : num  241 195 153 197 267 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(punting)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Distance Hang RStr LStr RFlex LFlex   OStr
+1   162.50 4.75  170  170   106   106 240.57
+2   144.00 4.07  140  130    92    93 195.49
+3   147.50 4.04  180  170    93    78 152.99
+4   163.50 4.18  160  160   103    93 197.09
+5   192.00 4.35  170  150   104    93 266.56
+6   171.75 4.16  150  150   101    87 260.56</code></pre>
+</div>
+</div>
+<section id="part-a-2" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-2">Part (a)</h3>
+<p>We fit a regression model with <code>Distance</code> as the response and right and left leg strength and flexibility as predictors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>lm_fit_punting <span class="ot">&lt;-</span> <span class="fu">lm</span>(Distance <span class="sc">~</span> RStr <span class="sc">+</span> LStr <span class="sc">+</span> RFlex <span class="sc">+</span> LFlex, <span class="at">data =</span> punting)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>lm_fit_punting <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Distance ~ RStr + LStr + RFlex + LFlex, data = punting)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-23.941  -8.958  -4.441  13.523  17.016 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept) -79.6236    65.5935  -1.214    0.259
+RStr          0.5116     0.4856   1.054    0.323
+LStr         -0.1862     0.5130  -0.363    0.726
+RFlex         2.3745     1.4374   1.652    0.137
+LFlex        -0.5277     0.8255  -0.639    0.541
+
+Residual standard error: 16.33 on 8 degrees of freedom
+Multiple R-squared:  0.7365,    Adjusted R-squared:  0.6047 
+F-statistic:  5.59 on 4 and 8 DF,  p-value: 0.01902</code></pre>
+</div>
+</div>
+<p>We see from the output that at the 5% significance level, none of the predictors are significant (all of their p-values exceed 0.05).</p>
+</section>
+<section id="part-b-2" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-2">Part (b)</h3>
+<p>To do an F-test, we have the null hypothesis <span class="math display">\[\beta_{RStr} = \beta_{LStr} = \beta_{RFlex} = \beta_{LFlex} = 0\]</span> versus the alternative hypothesis that at least one beta parameter is non-zero. Our F-statistic is then <span class="math display">\[F_{obs} = \frac{MSR}{MSE} = 5.59\]</span>, the latter equality coming from the output from the model summary above. Now the null distribution is <span class="math display">\[F \sim F_{p - 1, n - p}\]</span>, where in this case n is 13 and p-1 = 4, so p = 5. So our p-value is <span class="math display">\[p = P(F \ge F_{obs}) = 1 - P(F &lt; F_{obs})\]</span>, which we calculate in R as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">-</span><span class="fu">pf</span>(<span class="fl">5.59</span>, <span class="dv">4</span>, <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.01902427</code></pre>
+</div>
+</div>
+<p>We see this p-value matches that provided for the F-test in the summary output above. Since the p-value is less than 0.05, we reject the null hypothesis at the 5% significance level. That is, we have evidence that at least one beta parameter is non-zero (or alternatively, that collectively these 4 parameters have a relationship with the response).</p>
+<p>However, note that none of the predictors are individually significant at the 5% level, as we noted above. This is a situation analogous to that discussed in problem 1 and is a consequence of the correlation between the predictor variables.</p>
+</section>
+<section id="part-c-1" class="level3">
+<h3 class="anchored" data-anchor-id="part-c-1">Part (c)</h3>
+<p>For this part, we test whether relative to the model in (a), a model with right and left leg strengths has the same effect. The full construction of this kind of test was shown in problem 1 part (b). So we will not show it again (see that problem for details) but rather will use the output from the <code>anova</code> function. First we fit the reduced model, and then we conduct the general F-test using the <code>anova</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>lm_fit_reduced_c <span class="ot">&lt;-</span> <span class="fu">lm</span>(Distance <span class="sc">~</span> RStr <span class="sc">+</span> LStr, <span class="at">data =</span> punting)</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm_fit_reduced_c, lm_fit_punting)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: Distance ~ RStr + LStr
+Model 2: Distance ~ RStr + LStr + RFlex + LFlex
+  Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+1     10 2973.1                           
+2      8 2132.6  2    840.43 1.5763 0.2648</code></pre>
+</div>
+</div>
+<p>The null hypothesis for this test is that the reduced model explains the same amount of variability in the response variable <code>Distance</code> as the full model does. Our p-value is 0.2648, so since this exceeds 0.05, we do not have enough evidence to reject the null hypothesis. That is, we do not have evidence that the full model (from part (a)) explains more variability in the response than the reduced model does.</p>
+</section>
+<section id="part-d-1" class="level3">
+<h3 class="anchored" data-anchor-id="part-d-1">Part (d)</h3>
+<p>Now we construct a 95% confidence region for <span class="math display">\[\beta = (\beta_{RStr}, \beta_{LStr})\]</span>. This region is the set of all <span class="math display">\[\beta\]</span> satisfying <span class="math display">\[\frac{(\hat{\beta} - \beta)^T(X^TX)(\hat{\beta} - \beta)}{p\hat{\sigma}^2} \le F_{1 - \alpha, p, n - p}\]</span>. To visualize this region, we use the <code>ellipse</code> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ellipse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ellipse' was built under R version 4.5.2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'ellipse'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:graphics':
+
+    pairs</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">ellipse</span>(lm_fit_reduced_c, <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>)), <span class="at">type =</span> <span class="st">'l'</span>)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">coef</span>(lm_fit_reduced_c)[<span class="dv">2</span>], <span class="fu">coef</span>(lm_fit_reduced_c)[<span class="dv">3</span>], <span class="at">pch =</span> <span class="dv">19</span>)</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="dv">0</span>,<span class="dv">0</span>, <span class="at">pch =</span> <span class="dv">19</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ST503-HW2_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The confidence region represents a range of plausible values for <span class="math display">\[\beta = (\beta_{RStr}, \beta_{LStr})\]</span>. In the reduced model from part (c), we tested the null hypothesis that <span class="math display">\[\beta = (\beta_{RStr}, \beta_{LStr}) = (0, 0)\]</span>. So we reject the null with that F-test if and only if the null value <span class="math display">\[\beta = (\beta_{RStr}, \beta_{LStr}) = (0, 0)\]</span> falls outside the 95% confidence region described here. We see that the null value of (0,0) lies outside the confidence ellipse. Therefore we reject the null hypothesis at the 5% significance level based on the 95% confidence region. Compare this with the reduced model from part (c).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>lm_fit_reduced_c <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Distance ~ RStr + LStr, data = punting)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-29.280  -9.583   3.147  10.266  26.450 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)  12.8490    33.0334   0.389    0.705
+RStr          0.7208     0.4913   1.467    0.173
+LStr          0.2011     0.4883   0.412    0.689
+
+Residual standard error: 17.24 on 10 degrees of freedom
+Multiple R-squared:  0.6327,    Adjusted R-squared:  0.5592 
+F-statistic: 8.611 on 2 and 10 DF,  p-value: 0.00669</code></pre>
+</div>
+</div>
+<p>We reject the null based on this as well, since the p-value for the F-test is less than 0.05. We see that the two approaches are congruent, as expected.</p>
+</section>
+<section id="part-e-1" class="level3">
+<h3 class="anchored" data-anchor-id="part-e-1">Part (e)</h3>
+<p>Next we fit a model to test the hypothesis that it is total leg strength defined by adding the right and left leg strengths that is sufficient to predict the response in comparison to using individual left and right leg strengths. The individual model has the form <span class="math display">\[Distance = \beta_o + \beta_{RStr}(RStr) + \beta_{LStr}(LStr) + \epsilon\]</span>. The the total leg strength model is a reduced form of the individual model with <span class="math display">\[\beta_{RStr} = \beta_{LStr} = \beta\]</span>. Then the null hypothesis is that our reduced model (total leg strength model) explains the same amount of variability in the response as the full model (individual leg model). To conduct the test, we fit the reduced model and use the <code>anova</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>lm_fit_reduced_e <span class="ot">&lt;-</span> <span class="fu">lm</span>(Distance <span class="sc">~</span> <span class="fu">I</span>(RStr <span class="sc">+</span> LStr), <span class="at">data =</span> punting)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>lm_fit_reduced_e <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Distance ~ I(RStr + LStr), data = punting)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-27.632 -11.531   2.171   8.443  30.672 
+
+Coefficients:
+               Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept)     14.0936    31.8838   0.442  0.66703   
+I(RStr + LStr)   0.4601     0.1082   4.252  0.00136 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 16.68 on 11 degrees of freedom
+Multiple R-squared:  0.6217,    Adjusted R-squared:  0.5874 
+F-statistic: 18.08 on 1 and 11 DF,  p-value: 0.001361</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm_fit_reduced_e, lm_fit_reduced_c)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: Distance ~ I(RStr + LStr)
+Model 2: Distance ~ RStr + LStr
+  Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+1     11 3061.3                           
+2     10 2973.1  1    88.281 0.2969 0.5978</code></pre>
+</div>
+</div>
+<p>We get a p-value (0.5978) for this general F-test much larger than 0.05 so we fail to reject the null hypothesis at the 5% significance level. That is, we do NOT have evidence that the model with individual leg strengths as predictors explains more variability in the response than the model which considers only the sum of the left and right leg strengths.</p>
+</section>
+<section id="part-f-1" class="level3">
+<h3 class="anchored" data-anchor-id="part-f-1">Part (f)</h3>
+<p>In this part, we test whether the right and left leg flexibilities have the same effect relative to the model in (a). This is again done by general F-test as we have done several times already in this assignment. The null hypothesis is that the reduced model, which only considers right and left leg flexibilities, explains the same amount of variance in the response variable <code>Distance</code> as the full model (which considers right and left leg strengths as well as right and left leg flexibilities). To carry out this test, we again fit the reduced model and then use the <code>anova</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>lm_fit_reduced_f <span class="ot">&lt;-</span> <span class="fu">lm</span>(Distance <span class="sc">~</span> RFlex <span class="sc">+</span> LFlex, <span class="at">data =</span> punting)</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>lm_fit_reduced_f <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Distance ~ RFlex + LFlex, data = punting)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-28.048  -7.601  -3.076   9.601  22.474 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept) -92.9547    57.7699  -1.609  0.13868   
+RFlex         3.3366     0.8074   4.132  0.00204 **
+LFlex        -0.8560     0.7338  -1.167  0.27045   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 15.79 on 10 degrees of freedom
+Multiple R-squared:  0.6921,    Adjusted R-squared:  0.6305 
+F-statistic: 11.24 on 2 and 10 DF,  p-value: 0.002768</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm_fit_reduced_f, lm_fit_punting)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: Distance ~ RFlex + LFlex
+Model 2: Distance ~ RStr + LStr + RFlex + LFlex
+  Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+1     10 2492.1                           
+2      8 2132.6  2    359.46 0.6742 0.5363</code></pre>
+</div>
+</div>
+<p>We get a p-value of 0.5363 for this general F-test, which is much larger than 0.05. Thus at the 5% significance level, we fail to reject the null hypothesis. That is, we do NOT have evidence that the full model in part (a) explains more variability in the response variable <code>Distance</code> than the reduced model does (which considers only right and left leg flexibilities).</p>
+</section>
+<section id="part-g" class="level3">
+<h3 class="anchored" data-anchor-id="part-g">Part (g)</h3>
+<hr>
+</section>
+<section id="part-h" class="level3">
+<h3 class="anchored" data-anchor-id="part-h">Part (h)</h3>
+<p>Here we fit a model with <code>Hang</code> as the response and the same four predictors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>lm_fit_punting_hang <span class="ot">&lt;-</span> <span class="fu">lm</span>(Hang <span class="sc">~</span> RStr <span class="sc">+</span> LStr <span class="sc">+</span> RFlex <span class="sc">+</span> LFlex, <span class="at">data =</span> punting)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>lm_fit_punting_hang <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Hang ~ RStr + LStr + RFlex + LFlex, data = punting)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.36297 -0.13528 -0.07849  0.09938  0.35893 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept) -0.225239   1.032784  -0.218    0.833
+RStr         0.005153   0.007645   0.674    0.519
+LStr         0.007697   0.008077   0.953    0.369
+RFlex        0.019404   0.022631   0.857    0.416
+LFlex        0.004614   0.012998   0.355    0.732
+
+Residual standard error: 0.2571 on 8 degrees of freedom
+Multiple R-squared:  0.8156,    Adjusted R-squared:  0.7235 
+F-statistic: 8.848 on 4 and 8 DF,  p-value: 0.004925</code></pre>
+</div>
+</div>
+<p>We have not discussed a test which allows us to compare this model to that in (a). The general F-test assumes one model in the comparison is a nested model of the other and has the same response variable. If we compare this model to that in (a), we have different response variables.</p>
+</section>
+</section>
+<section id="problem-5" class="level2">
+<h2 class="anchored" data-anchor-id="problem-5">Problem 5</h2>
+<p>For this problem we do exercise 4.1 in LMR. For this question we use the <code>prostate</code> data. We start by viewing the structure of the data set and the first few rows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(prostate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   97 obs. of  9 variables:
+ $ lcavol : num  -0.58 -0.994 -0.511 -1.204 0.751 ...
+ $ lweight: num  2.77 3.32 2.69 3.28 3.43 ...
+ $ age    : int  50 58 74 58 62 50 64 58 47 63 ...
+ $ lbph   : num  -1.39 -1.39 -1.39 -1.39 -1.39 ...
+ $ svi    : int  0 0 0 0 0 0 0 0 0 0 ...
+ $ lcp    : num  -1.39 -1.39 -1.39 -1.39 -1.39 ...
+ $ gleason: int  6 6 7 6 6 6 6 6 6 6 ...
+ $ pgg45  : int  0 0 20 0 0 0 0 0 0 0 ...
+ $ lpsa   : num  -0.431 -0.163 -0.163 -0.163 0.372 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(prostate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      lcavol lweight age      lbph svi      lcp gleason pgg45     lpsa
+1 -0.5798185  2.7695  50 -1.386294   0 -1.38629       6     0 -0.43078
+2 -0.9942523  3.3196  58 -1.386294   0 -1.38629       6     0 -0.16252
+3 -0.5108256  2.6912  74 -1.386294   0 -1.38629       7    20 -0.16252
+4 -1.2039728  3.2828  58 -1.386294   0 -1.38629       6     0 -0.16252
+5  0.7514161  3.4324  62 -1.386294   0 -1.38629       6     0  0.37156
+6 -1.0498221  3.2288  50 -1.386294   0 -1.38629       6     0  0.76547</code></pre>
+</div>
+</div>
+<p>Now we fit a model with <code>lpsa</code> as the response and the other variables as predictors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>lm_fit_prostate <span class="ot">&lt;-</span> <span class="fu">lm</span>(lpsa <span class="sc">~</span>., <span class="at">data =</span> prostate)</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>lm_fit_prostate <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = lpsa ~ ., data = prostate)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.7331 -0.3713 -0.0170  0.4141  1.6381 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.669337   1.296387   0.516  0.60693    
+lcavol       0.587022   0.087920   6.677 2.11e-09 ***
+lweight      0.454467   0.170012   2.673  0.00896 ** 
+age         -0.019637   0.011173  -1.758  0.08229 .  
+lbph         0.107054   0.058449   1.832  0.07040 .  
+svi          0.766157   0.244309   3.136  0.00233 ** 
+lcp         -0.105474   0.091013  -1.159  0.24964    
+gleason      0.045142   0.157465   0.287  0.77503    
+pgg45        0.004525   0.004421   1.024  0.30886    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.7084 on 88 degrees of freedom
+Multiple R-squared:  0.6548,    Adjusted R-squared:  0.6234 
+F-statistic: 20.86 on 8 and 88 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<section id="part-a-3" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-3">Part (a)</h3>
+<p>For this part, we are given the values for a new patient. We store them in a data frame.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>new_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">'lcavol'</span> <span class="ot">=</span> <span class="fl">1.44692</span>, <span class="st">'lweight'</span> <span class="ot">=</span> <span class="fl">3.62301</span>, <span class="st">'age'</span> <span class="ot">=</span> <span class="fl">65.00000</span>, <span class="st">'lbph'</span> <span class="ot">=</span> <span class="fl">0.30010</span>, <span class="st">'svi'</span> <span class="ot">=</span> <span class="fl">0.00000</span>, <span class="st">'lcp'</span> <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.79851</span>, <span class="st">'gleason'</span> <span class="ot">=</span> <span class="fl">7.00000</span>, <span class="st">'pgg45'</span> <span class="ot">=</span> <span class="fl">15.00000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let <span class="math display">\[c^* = (1, lcavol^*, lweight^*, ..., pgg45^*)^T\]</span>, where the * represents the value of a predictor for the new patient, and <span class="math display">\[\hat{\beta}\]</span> is the p-vector of estimates for the coefficients of the model. Then our point estimate for <code>lpsa</code> for this new patient is <span class="math display">\[\hat{Y}^* = (c^*)^T\hat{\beta}\]</span>. We calculate this with the <code>predict</code> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(lm_fit_prostate, <span class="at">newdata =</span> new_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       1 
+2.389053 </code></pre>
+</div>
+</div>
+<p>So the predicted <code>lpsa</code> for this patient is 2.389053. Now we estimate the 95% CI of the predicted <code>lpsa</code> for this patient, which is commonly called the prediction interval. The formula for this interval is based on the distribution of the following pivotal quantity <span class="math display">\[\frac{\hat{Y}^* - Y^*}
+{\hat{\sigma}[1 + (c^*)^T(X^TX)^-1(c^*)]} \sim t_{n - p}\]</span>. From this distribution we can determine the 95% CI (prediction interval). We can calculate it with the <code>predict</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(lm_fit_prostate, <span class="at">newdata =</span> new_data, <span class="at">interval =</span> <span class="st">'prediction'</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       fit       lwr      upr
+1 2.389053 0.9646584 3.813447</code></pre>
+</div>
+</div>
+<p>So the 95% CI/prediction interval for the new value is (0.9646584, 3.813447).</p>
+</section>
+<section id="part-b-3" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-3">Part (b)</h3>
+<p>Now we repeat the last question for a patient with the same values except that he is age 20. First we update the <code>new_data</code> data frame and then we recalculate the point and interval estimates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>new_data_updated <span class="ot">&lt;-</span> new_data</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>new_data_updated<span class="sc">$</span>age <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(lm_fit_prostate, <span class="at">newdata =</span> new_data_updated, <span class="at">interval =</span> <span class="st">'prediction'</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       fit      lwr      upr
+1 3.272726 1.538744 5.006707</code></pre>
+</div>
+</div>
+<p>The confidence interval is wider because an age of 20 is further from the mean age (63.86598) than the original age of 65 is. This leads to more variability in the response variable so the prediction interval is wider.</p>
+</section>
+<section id="part-c-2" class="level3">
+<h3 class="anchored" data-anchor-id="part-c-2">Part (c)</h3>
+<p>Now we take the model and remove all the predictors that are not significant at the 5% level.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>lm_fit_prostate <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = lpsa ~ ., data = prostate)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.7331 -0.3713 -0.0170  0.4141  1.6381 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.669337   1.296387   0.516  0.60693    
+lcavol       0.587022   0.087920   6.677 2.11e-09 ***
+lweight      0.454467   0.170012   2.673  0.00896 ** 
+age         -0.019637   0.011173  -1.758  0.08229 .  
+lbph         0.107054   0.058449   1.832  0.07040 .  
+svi          0.766157   0.244309   3.136  0.00233 ** 
+lcp         -0.105474   0.091013  -1.159  0.24964    
+gleason      0.045142   0.157465   0.287  0.77503    
+pgg45        0.004525   0.004421   1.024  0.30886    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.7084 on 88 degrees of freedom
+Multiple R-squared:  0.6548,    Adjusted R-squared:  0.6234 
+F-statistic: 20.86 on 8 and 88 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>The predictors which are significant at the 5% level are <code>lcavol</code>, <code>lweight</code>, and <code>svi</code>, so we refit the model with only these predictors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>lm_fit_prostate_refit <span class="ot">&lt;-</span> <span class="fu">lm</span>(lpsa <span class="sc">~</span> lcavol <span class="sc">+</span> lweight <span class="sc">+</span> svi, <span class="at">data =</span> prostate)</span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>lm_fit_prostate_refit <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = lpsa ~ lcavol + lweight + svi, data = prostate)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.72964 -0.45764  0.02812  0.46403  1.57013 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -0.26809    0.54350  -0.493  0.62298    
+lcavol       0.55164    0.07467   7.388  6.3e-11 ***
+lweight      0.50854    0.15017   3.386  0.00104 ** 
+svi          0.66616    0.20978   3.176  0.00203 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.7168 on 93 degrees of freedom
+Multiple R-squared:  0.6264,    Adjusted R-squared:  0.6144 
+F-statistic: 51.99 on 3 and 93 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Now we use the new model to recompute the predictions of the previous question. It doesn’t matter which age we use since age is not a predictor in the model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(lm_fit_prostate_refit, <span class="at">newdata =</span> new_data, <span class="at">interval =</span> <span class="st">'prediction'</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       fit       lwr      upr
+1 2.372534 0.9383436 3.806724</code></pre>
+</div>
+</div>
+<p>The width of the confidence interval is 3.806724 - 0.9383436 = 2.8683804.</p>
+<p>Compare this with the original models where the width of the confidence intervals were 3.813447 - 0.9646584 = 2.8487886 (part (a)) and 5.006707 - 1.538744 = 3.467963.</p>
+<p>The CI of the reduced model is very slightly wider than that for the prediction made by the full model using age 65, but the CI of the reduced model is quite smaller than the CI for the prediction made by the full model using age 65. Thus from this perspective, the reduced model may be preferable. However, we may lose valuable prediction information. An F-test would be enlightening to compare the models.</p>
+</section>
+</section>
+<section id="problem-6" class="level2">
+<h2 class="anchored" data-anchor-id="problem-6">Problem 6</h2>
+<p>To get this problem started, we first need run the code to create the function <code>ftest</code>. This is copied from the Moodle page.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>ftest <span class="ot">=</span> <span class="cf">function</span>(model, A, <span class="at">b =</span> <span class="dv">0</span>)</span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># General linear test of H0: A beta = b</span></span>
+<span id="cb91-3"><a href="#cb91-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># model is the fitted model under H1 </span></span>
+<span id="cb91-4"><a href="#cb91-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># A needs to be of full rank</span></span>
+<span id="cb91-5"><a href="#cb91-5" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb91-6"><a href="#cb91-6" aria-hidden="true" tabindex="-1"></a>  BetaHat <span class="ot">=</span> <span class="fu">coef</span>(model)</span>
+<span id="cb91-7"><a href="#cb91-7" aria-hidden="true" tabindex="-1"></a>  dimA <span class="ot">=</span> <span class="fu">dim</span>(A)</span>
+<span id="cb91-8"><a href="#cb91-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">length</span>(BetaHat) <span class="sc">!=</span> dimA[<span class="dv">2</span>]) <span class="fu">stop</span>(<span class="st">"Sizes of A and Beta are incompatible"</span>)</span>
+<span id="cb91-9"><a href="#cb91-9" aria-hidden="true" tabindex="-1"></a>  q <span class="ot">=</span> dimA[<span class="dv">1</span>]</span>
+<span id="cb91-10"><a href="#cb91-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">qr</span>(A)<span class="sc">$</span>rank <span class="sc">!=</span> q) <span class="fu">stop</span>(<span class="st">"Rows of A must be linearly independent."</span>)</span>
+<span id="cb91-11"><a href="#cb91-11" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">=</span> <span class="fu">numeric</span>(<span class="dv">4</span>)</span>
+<span id="cb91-12"><a href="#cb91-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(out) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"F"</span>,<span class="st">"df1"</span>,<span class="st">"df2"</span>,<span class="st">"p-value"</span>)</span>
+<span id="cb91-13"><a href="#cb91-13" aria-hidden="true" tabindex="-1"></a>  dfe <span class="ot">=</span> <span class="fu">df.residual</span>(model)</span>
+<span id="cb91-14"><a href="#cb91-14" aria-hidden="true" tabindex="-1"></a>  diff <span class="ot">=</span> A<span class="sc">%*%</span>BetaHat <span class="sc">-</span> b</span>
+<span id="cb91-15"><a href="#cb91-15" aria-hidden="true" tabindex="-1"></a>  fstat <span class="ot">=</span> <span class="fu">t</span>(diff) <span class="sc">%*%</span> <span class="fu">solve</span>(A<span class="sc">%*%</span><span class="fu">vcov</span>(model)<span class="sc">%*%</span><span class="fu">t</span>(A)) <span class="sc">%*%</span> diff <span class="sc">/</span> q</span>
+<span id="cb91-16"><a href="#cb91-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Note vcov = MSE * XtXinv</span></span>
+<span id="cb91-17"><a href="#cb91-17" aria-hidden="true" tabindex="-1"></a>  fstat <span class="ot">=</span> <span class="fu">as.numeric</span>(fstat)</span>
+<span id="cb91-18"><a href="#cb91-18" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">1</span>] <span class="ot">=</span> fstat</span>
+<span id="cb91-19"><a href="#cb91-19" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">2</span>] <span class="ot">=</span> q</span>
+<span id="cb91-20"><a href="#cb91-20" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">3</span>] <span class="ot">=</span> dfe</span>
+<span id="cb91-21"><a href="#cb91-21" aria-hidden="true" tabindex="-1"></a>  out[<span class="dv">4</span>] <span class="ot">=</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(fstat, q, dfe)</span>
+<span id="cb91-22"><a href="#cb91-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(out)</span>
+<span id="cb91-23"><a href="#cb91-23" aria-hidden="true" tabindex="-1"></a>} <span class="co"># End of function ftest</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="part-a-4" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-4">Part (a)</h3>
+<p>Here we conduct the overall F-test. The null hypothesis is <span class="math display">\[\beta_{status} = \beta_{income} = \beta_{verbal} = 0\]</span>, and the alternative hypothesis is that at least one beta parameter is nonzero. We fit the model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>lm_fit_gamble <span class="ot">&lt;-</span> <span class="fu">lm</span>(gamble <span class="sc">~</span> status <span class="sc">+</span> income <span class="sc">+</span> verbal, <span class="at">data=</span>teengamb)</span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>lm_fit_gamble <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = gamble ~ status + income + verbal, data = teengamb)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-49.649 -12.008  -1.242   8.239 103.390 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  -1.3044    15.7760  -0.083   0.9345    
+status        0.4701     0.2509   1.873   0.0678 .  
+income        5.7707     1.0494   5.499 1.95e-06 ***
+verbal       -4.1211     2.2785  -1.809   0.0775 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 24.28 on 43 degrees of freedom
+Multiple R-squared:  0.445, Adjusted R-squared:  0.4062 
+F-statistic: 11.49 on 3 and 43 DF,  p-value: 1.161e-05</code></pre>
+</div>
+</div>
+<p>We could calculate the F-statistic ourselves from the data if we wanted to by finding MSR and MSE and taking the ratio, but here we take it from the model fit summary output instead. So the F-statistic is <span class="math display">\[F_{obs} = \frac{MSR}{MSE} = 11.49\]</span>, the latter equality coming from the output of the model fit summary. The null distribution is <span class="math display">\[F \sim F_{p - 1, n - p}\]</span> where p-1 is the number of predictors. Thus p-1=3, so p=4 and n-p equals 47-4=43. Hence we can calculate the p-value by taking <span class="math display">\[p = P(F \ge F_{obs}) = 1 - P(F &lt; F_{obs})\]</span>. In R this is calculated as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">-</span><span class="fu">pf</span>(<span class="fl">11.49</span>, <span class="dv">3</span>, <span class="dv">43</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.161645e-05</code></pre>
+</div>
+</div>
+<p>We see that the p-value we calculated agrees with that provided in the output of the model fit summary. Since our p-value is less than 0.05, we reject the null hypothesis at the 5% significance level. That is, we have evidence against the null hypothesis, meaning we have reason to believe that at least one of the beta parameters (for the predictors) is non-zero.</p>
+</section>
+<section id="part-b-4" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-4">Part (b)</h3>
+<p>Here we test the null hypothesis <span class="math display">\[\beta_2 = \beta_{income} = 3\]</span> versus the alternative hypothesis <span class="math display">\[\beta_2 = \beta_{income} \ne 3\]</span>. Since we wish to use the function <code>ftest</code>, we need to reframe this test as comparing a reduced model to a full model. Since we want <span class="math display">\[\beta_2 = \beta_{income} = 3\]</span>, we can consider this equality to be a single linear constraint. Then our A matrix is <span class="math display">\[A = \begin{pmatrix}
+0 &amp; 0 &amp; 1 &amp; 0
+\end{pmatrix}\]</span>, and our b vector is <span class="math display">\[b = \begin{pmatrix}
+3
+\end{pmatrix}\]</span>.</p>
+<p>We plug A and b, along with the fit for the full model, into the <code>ftest</code> function to compare the reduced model with the full model, which is equivalent to the t-test if we constrain one parameter to be a constant.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ftest</span>(lm_fit_gamble, <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>), <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">ncol =</span> <span class="dv">4</span>), <span class="at">b =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          F         df1         df2     p-value 
+ 6.97148981  1.00000000 43.00000000  0.01149518 </code></pre>
+</div>
+</div>
+<p>The p-value we obtain from the <code>ftest</code> output matches exactly that found using a t-test in the document ST503R-3. Since our p-value is less than 0.05, we have evidence against the null hypothesis at the 5% significance level. That is, our evidence favors the alternative hypothesis <span class="math display">\[\beta_2 = \beta_{income} \ne 3\]</span>.</p>
+</section>
+<section id="part-c-3" class="level3">
+<h3 class="anchored" data-anchor-id="part-c-3">Part (c)</h3>
+<p>Here we need to import the surgical survival data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>surgery <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">'surgical_unit_data.txt'</span>, <span class="at">header =</span> <span class="cn">FALSE</span>, <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">'blood_clot'</span>, <span class="st">'PI'</span>, <span class="st">'enzy'</span>, <span class="st">'liver'</span>, <span class="st">'age'</span>, <span class="st">'gender'</span>,</span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a><span class="st">'mod_use'</span>, <span class="st">'heavy_use'</span>, <span class="st">'sur_time'</span>, <span class="st">'ln_sur_time'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We start by viewing the structure of the data set and the first few rows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(surgery)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   54 obs. of  10 variables:
+ $ blood_clot : num  6.7 5.1 7.4 6.5 7.8 5.8 5.7 3.7 6 3.7 ...
+ $ PI         : int  62 59 57 73 65 38 46 68 67 76 ...
+ $ enzy       : int  81 66 83 41 115 72 63 81 93 94 ...
+ $ liver      : num  2.59 1.7 2.16 2.01 4.3 1.42 1.91 2.57 2.5 2.4 ...
+ $ age        : int  50 39 55 48 45 65 49 69 58 48 ...
+ $ gender     : int  0 0 0 0 0 1 1 1 0 0 ...
+ $ mod_use    : int  1 0 0 0 0 1 0 1 1 1 ...
+ $ heavy_use  : int  0 0 0 0 1 0 1 0 0 0 ...
+ $ sur_time   : int  695 403 710 349 2343 348 518 749 1056 968 ...
+ $ ln_sur_time: num  6.54 6 6.57 5.85 7.76 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(surgery)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  blood_clot PI enzy liver age gender mod_use heavy_use sur_time ln_sur_time
+1        6.7 62   81  2.59  50      0       1         0      695       6.544
+2        5.1 59   66  1.70  39      0       0         0      403       5.999
+3        7.4 57   83  2.16  55      0       0         0      710       6.565
+4        6.5 73   41  2.01  48      0       0         0      349       5.854
+5        7.8 65  115  4.30  45      0       0         1     2343       7.759
+6        5.8 38   72  1.42  65      1       1         0      348       5.852</code></pre>
+</div>
+</div>
+<p>Now we fit the full model and carry out the overall F-test. From the ST503R-3 document, the predictors to be used in the full model include <code>blood_clot</code>, <code>PI</code>, <code>enzy</code>, <code>liver</code>, and <code>age</code>. The null hypothesis for the overall F-test is <span class="math display">\[\beta_1 = \beta_2 = \beta_3 = \beta_4 = \beta_5 = 0\]</span>. The alternative hypothesis is that at least one of these beta parameters is non-zero.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>lm_fit_surgery <span class="ot">&lt;-</span> <span class="fu">lm</span>(sur_time <span class="sc">~</span> blood_clot <span class="sc">+</span> PI<span class="sc">+</span> enzy <span class="sc">+</span> liver <span class="sc">+</span> age, <span class="at">data =</span> surgery)</span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>lm_fit_surgery <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = sur_time ~ blood_clot + PI + enzy + liver + age, 
+    data = surgery)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-388.34 -147.74   11.74  124.67  954.32 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -1179.367    275.619  -4.279 8.91e-05 ***
+blood_clot     86.630     26.905   3.220 0.002302 ** 
+PI              8.501      2.137   3.978 0.000234 ***
+enzy           11.124      1.958   5.683 7.62e-07 ***
+liver          38.554     49.251   0.783 0.437595    
+age            -2.340      2.969  -0.788 0.434514    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 230.6 on 48 degrees of freedom
+Multiple R-squared:  0.695, Adjusted R-squared:  0.6632 
+F-statistic: 21.87 on 5 and 48 DF,  p-value: 2.386e-11</code></pre>
+</div>
+</div>
+<p>We could calculate the F-statistic for the test by calculating MSR and MSE from the data and taking their ratio. Instead, we will take the value for the F-statistic from the model fit summary output. The F-statistic is <span class="math display">\[F_{obs} = \frac{MSR}{MSE} = 21.87\]</span>, the latter equality coming from the model fit summary output. The null distribution is <span class="math display">\[F \sim F_{p - 1, n - p}\]</span>, where p-1=5 (the number of predictors), so p=6. Thus n-p = 54 - 6 = 48. We can then calculate the p-value as follows: <span class="math display">\[p = P(F \ge F_{obs}) = 1 - P(F &lt; F_{obs})\]</span>, which in R is calculated as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(<span class="fl">21.87</span>, <span class="dv">5</span>, <span class="dv">48</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.39333e-11</code></pre>
+</div>
+</div>
+<p>We see this p-value roughly agrees with that provided in the model fit summary output, the slight difference likely do to differences in floating point arithmetic. Since the p-value is much smaller than 0.05, at the 5% significance level we have evidence against the null hypothesis (so we reject it). That is, we have reason to believe that at least one of the beta parameters (for the predictors) is non-zero.</p>
+</section>
+<section id="part-d-2" class="level3">
+<h3 class="anchored" data-anchor-id="part-d-2">Part (d)</h3>
+<p>Now we are interested in a reduced model where <span class="math display">\[\beta_4 = \beta_5 = 0\]</span>. And our null hypothesis is that the reduced model explains as much variability in the response <code>sur_time</code> as the full model does. To use the <code>ftest</code> function to compare the models, we need our A matrix and b vector. We see that <span class="math display">\[A = \begin{pmatrix}
+   0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 \\
+   0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1
+\end{pmatrix}\]</span>, and <span class="math display">\[b = \begin{pmatrix}
+0 \\
+0
+\end{pmatrix}\]</span>. Our F-statistic is <span class="math display">\[F_{obs} = \frac{\frac{SSE_{reduced} - SSE_{full}}{q}}{\frac{SSE_{full}}{n - p}}\]</span>, where q=2 is the difference in dimension between the full and reduced model (ie the number of rows of the A matrix), and n-p is from the full model. We should have q=2 and n-p = 54-6 = 48. Our null distribution is <span class="math display">\[F \sim F_{q, n - p}\]</span>. We can use the <code>ftest</code> function to calculate the F-statistic.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ftest</span>(lm_fit_surgery, <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">byrow =</span> <span class="cn">TRUE</span>, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">6</span>), <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         F        df1        df2    p-value 
+ 0.8545346  2.0000000 48.0000000  0.4318516 </code></pre>
+</div>
+</div>
+<p>We see the F-statistic is 0.8545346, which agrees with that determined in the ST503R-3 document. So our p-value is given by <span class="math display">\[p = P(F \ge F_{obs}) = 1 - P(F &lt; F_{obs})\]</span>. In R we calculate this as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">-</span><span class="fu">pf</span>(<span class="fl">0.8545346</span>, <span class="dv">2</span>, <span class="dv">48</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.4318516</code></pre>
+</div>
+</div>
+<p>We see the calculated p-value agrees with the output from the <code>ftest</code> function and the ST503R-3 document. The p-value is greater than 0.05, so we fail to reject the null hypothesis at the 5% significance level. That is, we do not have evidence that the full model explains more variability in the response than the reduced model does.</p>
+</section>
+<section id="part-e-2" class="level3">
+<h3 class="anchored" data-anchor-id="part-e-2">Part (e)</h3>
+<p>Here we consider the reduced model where <span class="math display">\[\beta_4 = \beta_5\]</span>. The null hypothesis is that the reduced model explains as much variability in the response as the full model does. To use the <code>ftest</code> function to compare the models, we need our A matrix and b vector. In this case we have <span class="math display">\[A = \begin{pmatrix}
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1
+\end{pmatrix}\]</span> and <span class="math display">\[b = \begin{pmatrix}
+0
+\end{pmatrix}\]</span>. Our F-statistic is <span class="math display">\[F_{obs} = \frac{\frac{SSE_{reduced} - SSE_{full}}{q}}{\frac{SSE_{full}}{n - p}}\]</span>, where q is the difference in dimension between the full model and the reduced model (ie the number of rows of the A matrix), and n-p comes from the full model. We should have q=1 and n-p = 54-6 = 48. Our null distribution is <span class="math display">\[F \sim F_{q, n - p}\]</span>. We can use the <code>ftest</code> function to calculate the F-statistic.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ftest</span>(lm_fit_surgery, <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>), <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">ncol =</span> <span class="dv">6</span>), <span class="at">b =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         F        df1        df2    p-value 
+ 0.7106423  1.0000000 48.0000000  0.4034119 </code></pre>
+</div>
+</div>
+<p>We see from the output that our F-statistic is 0.7106423. This matches the F-statistic determined in the ST503R-3 document. Now our p-value is given by <span class="math display">\[p = P(F \ge F_{obs}) = 1 - P(F &lt; F_{obs})\]</span>. We can calculate this as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">-</span><span class="fu">pf</span>(<span class="fl">0.7106423</span>, <span class="dv">1</span>, <span class="dv">48</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.4034119</code></pre>
+</div>
+</div>
+<p>We see that the calculated p-value matches that from both the <code>ftest</code> function and the ST503R-3 document. This p-value is greater than 0.05, so we fail to reject the null hypothesis at the 5% significance level. That is, we do not have evidence that the full model explains more variability in the response than the reduced model.</p>
+</section>
+</section>
+<section id="problem-7" class="level2">
+<h2 class="anchored" data-anchor-id="problem-7">Problem 7</h2>
 </section>
 
 </main>
