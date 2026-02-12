@@ -15,7 +15,7 @@ library(faraway)
 
 ## Problem 1
 
-For this problem, we do excercise 3.4 in LMR. We start by viewing the structure and first few rows of the `sat` data.
+For this problem, we do exercise 3.4 in LMR. We start by viewing the structure and first few rows of the `sat` data.
 
 ```{r}
 str(sat)
@@ -31,15 +31,13 @@ sat_fit_a <- lm(total ~ expend + ratio + salary, data = sat)
 sat_fit_a |> summary()
 ```
 
-To test the hypothesis that $$\beta_{salary} = 0$$, we start with the following pivotal quantity which has a t distribution with n-p degrees of freedom:
+We first test the hypothesis that $$\beta_{salary} = 0$$. This is the null hypothesis. Then the alternative hypothesis is $$\beta_{salary} \ne 0$$. We start with the following pivotal quantity which has a t distribution with n-p degrees of freedom:
 
-$$\frac{\hat{\beta}_{salary} - \beta_{salary}}{s.e.(\hat{\beta}_{salary})}$$ To turn the pivotal quantity into a test statistic, we set $$\beta_{salary} = 0$$. This is our null hypothesis.
+$$\frac{\hat{\beta}_{salary} - \beta_{salary}}{s.e.(\hat{\beta}_{salary})}$$. To turn the pivotal quantity into a test statistic, we set $$\beta_{salary} = 0$$. This is our null hypothesis. Then our test statistic has the following form: $$\frac{\hat{\beta}_{salary}}{s.e.(\hat{\beta}_{salary})}$$. Since the number of predictors in the model is 3, we have p-1 = 3, so p=4. Since n=50, we have n-p = 50-4 = 46. So our null distribution is $$T \sim t_{n - p} \sim t_{46}$$.
 
-Then using the estimate and standard error from the linear model summary output, we have $$t_{obs} = \frac{\hat{\beta}_{salary}}{s.e.(\hat{\beta}_{salary})} = \frac{-8.823}{4.697} = -1.878$$.
+We obtain the estimate and standard error from the model fit summary above. So our test statistic is $$t_{obs} = \frac{\hat{\beta}_{salary}}{s.e.(\hat{\beta}_{salary})} = \frac{-8.823}{4.697} = -1.878$$.
 
-Finally since our null distribution is $$T \sim t_{n - p}$$, we have for a two-sided test that
-
-$$pvalue = 2P(T \ge |t_{obs}|) = 2(1 - P(T < |t_{obs}|))$$ which in R is calculated as `2*(1-pt(1.878, 46))` since n-p is 46.
+Finally, since our null distribution is $$T \sim t_{46}$$, we have for a two-sided test that our p-value is $$p = 2P(T \ge |t_{obs}|) = 2(1 - P(T < |t_{obs}|))$$ which in R is calculated as follows:
 
 ```{r}
 2*(1-pt(1.878, 46))
@@ -47,15 +45,15 @@ $$pvalue = 2P(T \ge |t_{obs}|) = 2(1 - P(T < |t_{obs}|))$$ which in R is calcula
 
 We see this p-value matches that given in the summary output for the linear model. At the 0.05 significance level, we fail to reject the null hypothesis that $$\beta_{salary} = 0$$, since the p-value is greater than 0.05. Thus we do NOT have evidence to reject the claim that $$\beta_{salary} = 0$$.
 
-Next we test the null hypothesis that $$\beta_{salary} = \beta_{ratio} = \beta_{expend} = 0$$ versus the alternative hypothesis that at least one beta coefficient is non-zero. The test statistic for this test is $$F_{obs} = \frac{MSR}{MSE} = 4.066$$, the last equality following from the output of the summary of our linear model that we fit above. The null distribution for the test is an F distribution with p-1 and n-p degrees of freedom, so if $$F \sim F_{p-1,n-p}$$, then the p-value for the test is given by $$pvalue = P(F \ge F_{obs}) = 1 - P(F < F_{obs})$$. In R code, we can calculate this as follows:
+Next we test the null hypothesis that $$\beta_{salary} = \beta_{ratio} = \beta_{expend} = 0$$ versus the alternative hypothesis that at least one of these beta coefficients are non-zero. The test statistic for this test is $$F_{obs} = \frac{MSR}{MSE} = 4.066$$, the last equality following from the output of the model fit summary from above. The null distribution for the test is $$F \sim F_{p-1,n-p}$$. Since we have 3 predictors, p-1 = 3, so p = 4. Thus, n-p = 50-4 = 46. Then the p-value for the test is given by $$p = P(F \ge F_{obs}) = 1 - P(F < F_{obs})$$. In R code, we can calculate this as follows:
 
 ```{r}
 1-pf(4.066, 3, 46)
 ```
 
-We see this p-value matches that from the summary output for our linear model fit above. At the 0.05 significance level, we reject the null hypothesis that $$\beta_{salary} = \beta_{ratio} = \beta_{expend} = 0$$, meaning we have evidence that at least one beta parameter is non-zero.
+We see this p-value matches that from the model fit summary above. Since the p-value is less than 0.05, we reject the null hypothesis that $$\beta_{salary} = \beta_{ratio} = \beta_{expend} = 0$$ at the 5% significance level, meaning we have evidence that at least one beta parameter (for the predictors) is non-zero.
 
-However, when we look at the p-values for the individual predictors, we see that at the 0.05 significance level, we do not have evidence that any of the beta parameters are non-zero for any of the predictors, suggesting that none of the predictors have an effect on the response. How is this congruent with the results of the F-test? This is addressed in the Student-to-Student discussion on the Moodle page. It is a consequence of high correlation between the predictors.
+However, when we look at the p-values for the individual predictors we see that at the 0.05 significance level, we do not have evidence that any of the coefficients are non-zero, suggesting that none of the predictors individually have an effect on the response (in the presence of the other predictors). How is this congruent with the results of the F-test? This is addressed in the Student-to-Student discussion on the Moodle page. It is a consequence of high correlation between the predictors.
 
 ### Part (b)
 
@@ -66,7 +64,13 @@ sat_fit_b <- lm(total ~ expend + ratio + salary + takers, data = sat)
 sat_fit_b |> summary()
 ```
 
-Now we want to test the null hypothesis that $$\beta_{takers} = 0$$, versus the alternative hypothesis that $$\beta_{takers} \ne 0$$. We could show our work the same as we did in part (a), but since we have already shown the work once, we will just use the output from the summary. We see that the p-value for `takers` is 2.61e-16, which is much less than 0.05. Thus at the 0.05 significance level we reject the null hypothesis of $$\beta_{takers} = 0$$. Hence we have evidence at the 0.05 significance level that $$\beta_{takers} \ne 0$$.
+We want to test the null hypothesis that $$\beta_{takers} = 0$$, versus the alternative hypothesis that $$\beta_{takers} \ne 0$$. Then the test statistic is $$\frac{\hat{\beta}_{takers}}{s.e.(\hat{\beta}_{takers})}$$. The null distribution is $$T \sim t_{n-p}$$. Since the model has 4 predictors, p-1 = 4, so p = 5. Hence n-p = 50-5 = 45. We obtain the observed value of the test statistic to be -12.559 from the model fit summary above. Then the p-value for a two-sided test of the null hypothesis is given by $$p = 2P(T \ge |t_{obs}|) = 2(1 - P(T < |t_{obs}|))$$, which we can calculate in R as follows:
+
+```{r}
+2*(1-pt(abs(-12.559), 45))
+```
+
+We see the calculated p-value (2.220446e-16) is very close to that provided in the model fit summary above (2.61e-16). The slight difference is likely due to differences in how floating point arithmetic is handled between our calculation and the `lm` function. Since our p-value is much less than 0.05, we reject the null hypothesis at the 5% significance level. That is, we have evidence that the true value of $$\beta_{takers}$$ is non-zero. 
 
 Next we wish to compare this model to the model in part (a) using an F-test. The null hypothesis is that the model in part (a), the reduced model, explains the same amount of variability in the response as the model in part (b) (the full model) does. Let $$SSE_{k}$$ denote the sum of squared errors for model k, where k takes value a for the reduced model and b for the full model. Then our test statistic is $$F_{obs} = \frac{\frac{SSE_a - SSE_b}{q}}{\frac{SSE_b}{n - p}}$$, where q is the difference in dimension between the two models, which is q=1 in this case, and n and p are chosen from the full model. We calculate the value of the F-statistic:
 
@@ -77,7 +81,7 @@ F_obs <- ((SSE_a - SSE_b)/1)/(SSE_b/45)
 F_obs
 ```
 
-Then since the null distribution is $$F \sim F_{q,n - p}$$, where q=1 and n-p=45, the p-value for the test is $$pvalue = P(F \ge F_{obs}) = 1 - P(F < F_{obs})$$. We calculate this as follows:
+Then since the null distribution is $$F \sim F_{q,n - p}$$, where q=1 and n-p=45, the p-value for the test is $$p = P(F \ge F_{obs}) = 1 - P(F < F_{obs})$$. We calculate this as follows:
 
 ```{r}
 1-pf(157.74, 1, 45)
@@ -89,9 +93,9 @@ We can compare our results with the output of an F-test using R code:
 anova(sat_fit_a, sat_fit_b)
 ```
 
-We see that our calculated F-statistic matches that provided in the table. Our calculated p-value is very close to that provided in the table, the tiny difference likely being related to how the `anova` function is handling rounding. Since the p-value is much less than 0.05, we have evidence against the null hypothesis at the 0.05 significance level. That is, we have evidence that the full model in part (b) explains more of the variability in the response than the reduced model in part (a) does.
+We see that our calculated F-statistic matches that provided in the `anova` function output. Our calculated p-value is very close to that provided in the `anova` function output, the tiny difference likely being a consequence of how floating point arithmetic is handled by our calculation versus the `anova` function. Since the p-value is much less than 0.05, we have evidence against the null hypothesis at the 0.05 significance level. That is, we have evidence that the full model in part (b) explains more of the variability in the response than the reduced model in part (a) does.
 
-Finally, to demonstrate the equivalence of the F-test and t-test in this case, note that the t-statistic of -12.559 from the full model, when squared, equals (roughly, due to rounding) the F-statistic of 157.74. As discussed in the lecture, this is in general the case when the reduced model is formed by putting exactly one $$\beta_{k} = 0$$.
+Finally, to demonstrate the equivalence of the F-test and t-test in this case, note that the t-statistic of -12.559 from the full model, when squared, equals (roughly, due to rounding) the F-statistic of 157.74 obtained when comparing the reduced and full models. As discussed in the lecture, this is in general the case when the reduced model is formed by putting exactly one $$\beta_{k} = 0$$. We also see that the p-values are identical for the two tests. We can understand the equivalence of the two tests by considering the null hypothesis in the t-test: $$\beta_{takers} = 0$$. If we assume this hypothesis is true, it is the same as imposing a linear constraint on the full model to form a reduced model, which can then be compared with the full model using a general F-test. If we reject the null using the F-test, then the model which includes `takers` explains more variability in the response than the model that does not include `takers`, meaning $$\beta_{takers}$$ is not likely to be 0. This is equivalent to rejecting the null hypothesis $$\beta_{takers} = 0$$ of the t-test for the coefficient of `takers`. 
 
 ## Problem 3
 
@@ -111,7 +115,7 @@ lm_fit_happy |> summary()
 
 ### Part (a)
 
-We see from the summary output that `love` and `work` are the significant predictors at the 1% level.
+We see from the model fit summary output that `love` is the only significant predictor at the 1% level.
 
 ### Part (b)
 
@@ -121,33 +125,33 @@ Now we use the `table` function to produce a numerical summary of the response.
 table(happy$happy) 
 ```
 
-We see there are more values at the high end of the happiness scale. In other words, the distribution is left-skewed. So the assumption that the response is normally distributed is questionable. And the response not being normally distributed implies the errors are not normally distributed. This follows from the logically equivalent contrapositive statement that normally distributed errors implies normally distributed response, which we showed in lecture. Thus the assumption of normality of errors, which is needed for a valid t-test, is violated.
+We see there are more values at the high end of the happiness scale. In other words, the distribution is left-skewed. So the assumption that the response is normally distributed is questionable. And the response not being normally distributed implies the errors are not normally distributed. This follows from the logically equivalent contrapositive statement that normally distributed errors implies normally distributed response, which we showed in lecture. Thus the assumption of normality of errors, which is needed for a valid t-test, may be violated.
 
 ### Part (c)
 
-Now we use the permutation test to test the significance of the `money` predictor.
+Now we use the permutation test to test the significance of the `money` predictor. Our null hypothesis is $$\beta_{money} = 0$$, versus the alternative hypothesis $$\beta_{money} \ne 0$$. Our observed test statistic is the usual t-test test statistic $$\frac{\hat{\beta}_{money}}{s.e.(\hat{\beta}_{money})}$$. Since this is a permutation test, we use computation to determine the null distribution (of the t-statistic), rather than the normal theory based approach we have used in previous problems. Then from this empirical distribution and our observed value for the test statistic we calculate the p-value. 
 
 ```{r}
 ###Set seed for reproducibility
-set.seed(12345)
+set.seed(123)
 
 ###Specify number of permutations to be done
 n = 10000
 
-### Initialize vectors to store null values t-statistics
+### Initialize vector to store empirical null t-statistic values
 t_money <- rep(NA, n)
 
-### Calculate null values of t-statistic by permuting the money predictor and update the above vector
+### Calculate empirical null values of t-statistic by permuting the money predictor and update the above empirical null t-statistic vector
 for (i in 1:n){
   lm_fit <- lm(happy ~ sample(money) + sex + love + work, data = happy)
   t_money[i] <- summary(lm_fit)$coefficients[2,3]
 }
 
 ###calculate the p-value 
-mean(t_money > summary(lm_fit_happy)$coefficients[2,3])
+mean(abs(t_money) > abs(summary(lm_fit_happy)$coefficients[2,3]))
 ```
 
-We see that our p-value from the permutation test is less than 0.05, so we reject the null hypothesis $$\beta_{money} = 0$$. That is, at the 0.05 significance level, we DO have evidence that the `money` predictor has a relationship with happiness, in the presence of the other predictors `sex`, `love`, and `work`.
+We see that our p-value from the permutation test exceeds 0.05, so we fail to reject the null hypothesis at the 5% significance level. That is, we do NOT have evidence that $$\beta_{money}$$ is non-zero. 
 
 ### Part (d)
 
@@ -167,7 +171,7 @@ hist(t_money, freq = FALSE)
 lines(grid, dt(grid, 34))
 ```
 
-We see that the empirical distribution of the t-statistic matches reasonably well with the expected null distribution, which is a t-distribution with 34 degrees of freedom.
+We see that the empirical null distribution of the t-statistic that we calculated by permutation (demonstrated by the underlying histogram) matches well with the expected null distribution (based on theory of normal errors), which is a t-distribution with 34 degrees of freedom.
 
 ### Part (f)
 
@@ -184,7 +188,7 @@ beta_money_boot <- rep(NA, B)
 for (i in 1:B){
   resampled_residuals <- sample(lm_fit_happy$residuals, replace = TRUE)
   y_boot <- lm_fit_happy$fitted.values + resampled_residuals
-  lm_fit <- lm(y_boot ~., data = happy)
+  lm_fit <- lm(y_boot ~ money + sex + love + work, data = happy)
   beta_money_boot[i] <- lm_fit$coefficients['money']
 }
 
@@ -200,7 +204,7 @@ CI_95_boot
 
 ```
 
-We can compare this with the 90% and 95% CIs obtained from t-test.
+We can compare this with the 90% and 95% CIs obtained from the theory of assuming normally distributed errors.
 
 ```{r}
 CI_90_t <- confint(lm_fit_happy, level = 0.9)[2,]
@@ -212,11 +216,12 @@ CI_95_boot
 CI_95_t
 ```
 
-We see the intervals obtained from t-test are similar to those obtained with the bootstrap, with the bootstrap intervals being slightly narrower, as was the case for the examples in the lecture.
+We see the intervals obtained from the theory of assuming normally distributed errors are similar to those obtained with the bootstrap, with the bootstrap intervals being slightly narrower, as was the case for the examples in the lecture.
 
-The null value $$\beta_{money} = 0$$ doesn't fall in the 90% CI, so we reject the null at the 90% significance level. However, the null value of 0 does fall in the 95% CI, so we fail to reject the null at the 95% significance level. This is the case for both the bootstrap interval estimate and t-test interval estimate.
+We see that for both the normal-error based 90% CI and the bootstrap 90% CI, 0 falls outside the intervals. Therefore we reject the null hypothesis $$\beta_{money} = 0$$ at the 10% level. This is consistent with both the normal-error based p-value for `money` and the permutation test.  
 
-This is incongruent with the permutation test results, for which we had evidence to reject the null hypothesis $$\beta_{money} = 0$$.
+The results however are discrepant for the 95% CI. The bootstrap 95% CI also doesn't contain 0, so we would reject the null hypothesis $$\beta_{money} = 0$$ at the 5% level if we were using this confidence interval. This is in contrast to the normal-error based 95% CI, where 0 is in the interval. In this case, we would fail to reject the null hypothesis. This latter conclusion is consistent with both the normal-error based p-value for `money` (provided in the model fit summary output) and the permutation test.
+
 
 ## Problem 4
 
@@ -240,7 +245,7 @@ We see from the output that at the 5% significance level, none of the predictors
 
 ### Part (b)
 
-To do an F-test, we have the null hypothesis $$\beta_{RStr} = \beta_{LStr} = \beta_{RFlex} = \beta_{LFlex} = 0$$ versus the alternative hypothesis that at least one beta parameter is non-zero. Our F-statistic is then $$F_{obs} = \frac{MSR}{MSE} = 5.59$$, the latter equality coming from the output from the model summary above. Now the null distribution is $$F \sim F_{p - 1, n - p}$$, where in this case n is 13 and p-1 = 4, so p = 5. So our p-value is $$p = P(F \ge F_{obs}) = 1 - P(F < F_{obs})$$, which we calculate in R as follows:
+To do an F-test, we have the null hypothesis $$\beta_{RStr} = \beta_{LStr} = \beta_{RFlex} = \beta_{LFlex} = 0$$ versus the alternative hypothesis that at least one beta parameter is non-zero. Our F-statistic is then $$F_{obs} = \frac{MSR}{MSE} = 5.59$$, the latter equality coming from the output from the model fit summary above. Now the null distribution is $$F \sim F_{p - 1, n - p}$$, where in this case n is 13 and p-1 = 4, so p = 5. Thus n-p = 13-5 = 8. So our p-value is $$p = P(F \ge F_{obs}) = 1 - P(F < F_{obs})$$, which we calculate in R as follows:
 
 ```{r}
 1-pf(5.59, 4, 8)
@@ -251,59 +256,93 @@ We see this p-value matches that provided for the F-test in the summary output a
 However, note that none of the predictors are individually significant at the 5% level, as we noted above. This is a situation analogous to that discussed in problem 1 and is a consequence of the correlation between the predictor variables.
 
 ### Part (c)
-
-For this part, we test whether relative to the model in (a), a model with right and left leg strengths has the same effect. The full construction of this kind of test was shown in problem 1 part (b). So we will not show it again (see that problem for details) but rather will use the output from the `anova` function. First we fit the reduced model, and then we conduct the general F-test using the `anova` function.
+Our null hypothesis for this test is $$\beta_{RStr} = \beta_{LStr}$$, and our alternative hypothesis is that $$\beta_{RStr} \ne \beta_{LStr}$$. To conduct this test, we note that $$\beta_{RStr} = \beta_{LStr}$$ is a linear constraint, so we can fit a reduced model with this constraint and compare it to the full model from part (a) using the general F-test. The F-statistic has the form $$F_{obs} = \frac{\frac{SSE_{reduced} - SSE_{full}}{q}}{\frac{SSE_{full}}{n - p}}$$, where q is the difference in dimension between the full model and reduced model, and n,p comes from the full model. Since we have a single linear constraint $$\beta_{RStr} = \beta_{LStr}$$, we conclude q=1. And from part (b) we have n-p = 8. So the null distribution is $$F \sim F_{q, n - p} \sim F_{1,8}$$. We can determine the value of the F-statistic by fitting the reduced model and using the `anova` function to compare the reduced and full models.
 
 ```{r}
-lm_fit_reduced_c <- lm(Distance ~ RStr + LStr, data = punting)
-anova(lm_fit_reduced_c, lm_fit_punting)
+lm_fit_punting_reduced_c <- lm(Distance ~ I(RStr + LStr) + RFlex + LFlex, data = punting)
+lm_fit_punting_reduced_c |> summary()
+anova(lm_fit_punting_reduced_c, lm_fit_punting)
 ```
 
-The null hypothesis for this test is that the reduced model explains the same amount of variability in the response variable `Distance` as the full model does. Our p-value is 0.2648, so since this exceeds 0.05, we do not have enough evidence to reject the null hypothesis. That is, we do not have evidence that the full model (from part (a)) explains more variability in the response than the reduced model does.
+From the output, we see the F-statistic is 0.5804. So we can determine the p-value using $$p = P(F \ge F_{obs}) = 1 - P(F < F_{obs})$$, which is calculated as:
+
+```{r}
+1-pf(0.5804, 1, 8)
+```
+
+The calculated p-value agrees with the one in the `anova` function output. Since the p-value is greater than 0.05, we fail to reject the null hypothesis at the 5% significance level. That is, we do not have evidence that the full model explains more variability in the response than the reduced model does. So we fail to reject the supposition that the right and left leg strength have the same effect. 
 
 ### Part (d)
 
-Now we construct a 95% confidence region for $$\beta = (\beta_{RStr}, \beta_{LStr})$$. This region is the set of all $$\beta$$ satisfying $$\frac{(\hat{\beta} - \beta)^T(X^TX)(\hat{\beta} - \beta)}{p\hat{\sigma}^2} \le F_{1 - \alpha, p, n - p}$$. To visualize this region, we use the `ellipse` package.
+Now we construct a 95% confidence region for $$(\beta_{RStr}, \beta_{LStr})$$. To visualize this region, we use the `ellipse` package.
 
 ```{r}
 library(ellipse)
-plot(ellipse(lm_fit_reduced_c, c(2,3)), type = 'l')
-points(coef(lm_fit_reduced_c)[2], coef(lm_fit_reduced_c)[3], pch = 19)
-points(0,0, pch = 19)
+plot(ellipse(lm_fit_punting, c(2,3)), type = 'l')
+points(coef(lm_fit_punting)[2], coef(lm_fit_punting)[3], pch = 19)
 ```
 
-The confidence region represents a range of plausible values for $$\beta = (\beta_{RStr}, \beta_{LStr})$$. In the reduced model from part (c), we tested the null hypothesis that $$\beta = (\beta_{RStr}, \beta_{LStr}) = (0, 0)$$. So we reject the null with that F-test if and only if the null value $$\beta = (\beta_{RStr}, \beta_{LStr}) = (0, 0)$$ falls outside the 95% confidence region described here. We see that the null value of (0,0) lies outside the confidence ellipse. Therefore we reject the null hypothesis at the 5% significance level based on the 95% confidence region. Compare this with the reduced model from part (c).
+The confidence region represents a range of plausible values for $$(\beta_{RStr}, \beta_{LStr})$$. From part (c), we cannot reject the hypothesis that $$\beta_{RStr} = \beta_{LStr}$$. Thus we expect points of the form $$(\beta_{RStr}, \beta_{RStr})$$ to lie within the confidence ellipse, as these represent the case where $$\beta_{RStr} = \beta_{LStr}$$. To visualize this, we can overlay the line y = x onto the confidence ellipse.
 
 ```{r}
-lm_fit_reduced_c |> summary()
+library(ellipse)
+plot(ellipse(lm_fit_punting, c(2,3)), type = 'l')
+points(coef(lm_fit_punting)[2], coef(lm_fit_punting)[3], pch = 19)
+abline(0, 1)
 ```
 
-We reject the null based on this as well, since the p-value for the F-test is less than 0.05. We see that the two approaches are congruent, as expected.
+We see that the line intersects many points of the ellipse, as expected.
 
 ### Part (e)
-Next we fit a model to test the hypothesis that it is total leg strength defined by adding the right and left leg strengths that is sufficient to predict the response in comparison to using individual left and right leg strengths. The individual model has the form $$Distance = \beta_o + \beta_{RStr}(RStr) + \beta_{LStr}(LStr) + \epsilon$$. The the total leg strength model is a reduced form of the individual model with $$\beta_{RStr} = \beta_{LStr} = \beta$$. Then the null hypothesis is that our reduced model (total leg strength model) explains the same amount of variability in the response as the full model (individual leg model). To conduct the test, we fit the reduced model and use the `anova` function.
+Next we fit two models to test the hypothesis that it is total leg strength defined by adding the right and left leg strengths that is sufficient to predict the response in comparison to using individual left and right leg strengths. The individual model has the form $$Distance = \beta_o + \beta_{RStr}(RStr) + \beta_{LStr}(LStr) + \epsilon$$. Thus the total leg strength model is a reduced form of the individual model with $$\beta_{RStr} = \beta_{LStr}$$. Then the null hypothesis is that our reduced model (total leg strength model) explains the same amount of variability in the response as the full model (individual leg model). As with any general F-test, the test statistic has the form $$F_{obs} = \frac{\frac{SSE_{reduced} - SSE_{full}}{q}}{\frac{SSE_{full}}{n - p}}$$, where q is the difference in dimension between the full model and reduced model, and n,p comes from the full model. Since we have one linear constraint to form the reduced model, namely $$\beta_{RStr} = \beta_{LStr}$$, we conclude that q=1. The full model has two predictors so p-1 = 2, meaning p=3. And n=13, so n-p = 13-3 = 10. Thus the null distribution is $$F \sim F_{q, n - p} \sim F_{1,10}$$. To obtain the F-statistic, we fit both models and use the `anova` function.
 
 ```{r}
-lm_fit_reduced_e <- lm(Distance ~ I(RStr + LStr), data = punting)
-lm_fit_reduced_e |> summary()
-anova(lm_fit_reduced_e, lm_fit_reduced_c)
+lm_fit_punting_sum <- lm(Distance ~ I(RStr + LStr), data = punting)
+lm_fit_punting_individual <- lm(Distance ~ RStr + LStr, data = punting)
+anova(lm_fit_punting_sum, lm_fit_punting_individual)
 ```
 
-We get a p-value (0.5978) for this general F-test much larger than 0.05 so we fail to reject the null hypothesis at the 5% significance level. That is, we do NOT have evidence that the model with individual leg strengths as predictors explains more variability in the response than the model which considers only the sum of the left and right leg strengths. 
+From the `anova` function output we have an F-statistic of 0.2969. So our p-value has the form $$p = P(F \ge F_{obs}) = 1 - P(F < F_{obs})$$, which we calculate by:
+
+```{r}
+1-pf(0.2969, 1, 10)
+```
+
+We see that the output from our calculation agrees with the p-value in the`anova` function output. We get a p-value (0.5978) for this general F-test much larger than 0.05 so we fail to reject the null hypothesis at the 5% significance level. That is, we do NOT have evidence that the model with individual leg strengths as predictors explains more variability in the response than the model which considers only the sum of the left and right leg strengths. Thus the reduced model (the total leg strength model) seems sufficient to predict the response. 
 
 ### Part (f)
-In this part, we test whether the right and left leg flexibilities have the same effect relative to the model in (a). This is again done by general F-test as we have done several times already in this assignment. The null hypothesis is that the reduced model, which only considers right and left leg flexibilities, explains the same amount of variance in the response variable `Distance` as the full model (which considers right and left leg strengths as well as right and left leg flexibilities). To carry out this test, we again fit the reduced model and then use the `anova` function.
+Our null hypothesis for this test is $$\beta_{RFlex} = \beta_{LFlex}$$, and our alternative hypothesis is that $$\beta_{RFlex} \ne \beta_{LFlex}$$. To conduct this test, we note that $$\beta_{RFlex} = \beta_{LFlex}$$ is a linear constraint on the full model in part (a), so we can fit a reduced model with this constraint and compare it to the full model from part (a) using the general F-test. The F-statistic has the form $$F_{obs} = \frac{\frac{SSE_{reduced} - SSE_{full}}{q}}{\frac{SSE_{full}}{n - p}}$$, where q is the difference in dimension between the full model and reduced model, and n,p comes from the full model. Since we have a single linear constraint $$\beta_{RFlex} = \beta_{LFlex}$$, we conclude q=1. And from part (b) we have n-p = 8. So the null distribution is $$F \sim F_{q, n - p} \sim F_{1,8}$$. We can determine the value of the F-statistic by fitting the reduced model and using the `anova` function to compare the reduced and full models.
 
 ```{r}
-lm_fit_reduced_f <- lm(Distance ~ RFlex + LFlex, data = punting)
-lm_fit_reduced_f |> summary()
-anova(lm_fit_reduced_f, lm_fit_punting)
+lm_fit_punting_reduced_f <- lm(Distance ~ RStr + LStr + I(RFlex + LFlex), data = punting)
+lm_fit_punting_reduced_f |> summary()
+anova(lm_fit_punting_reduced_f, lm_fit_punting)
 ```
 
-We get a p-value of 0.5363 for this general F-test, which is much larger than 0.05. Thus at the 5% significance level, we fail to reject the null hypothesis. That is, we do NOT have evidence that the full model in part (a) explains more variability in the response variable `Distance` than the reduced model does (which considers only right and left leg flexibilities). 
+We see from the `anova` function output that the F-statistic is 1.9346. So we calculate the p-value the same way as we did in part (c) (modifying the value of the test statistic of course):
+
+```{r}
+1-pf(1.9346, 1, 8)
+```
+
+We see the calculated p-value matches that in the `anova` function output. This p-value exceeds 0.05, so we fail to reject the null hypothesis at the 5% significance level. That is, we do NOT have evidence that the right and left leg flexibilities have different effects. 
 
 ### Part (g)
-***
+In this part we take simultaneously the null hypotheses from parts (c) and (f). That is, our null hypothesis is $$\beta_{RStr} = \beta_{LStr}$$ and $$\beta_{RFlex} = \beta_{LFlex}$$. Our alternative hypothesis is that at least one of the equalities in the null hypothesis is false. To test the hypothesis, we can consider a reduced model of the full model in part (a), where the constraints are $$\beta_{RStr} = \beta_{LStr}$$ and $$\beta_{RFlex} = \beta_{LFlex}$$, from the null hypothesis. As always the F-statistic is $$F_{obs} = \frac{\frac{SSE_{reduced} - SSE_{full}}{q}}{\frac{SSE_{full}}{n - p}}$$, where q is the difference in dimension between the full model and reduced model, and n,p comes from the full model. Since we have two linear constraints, q=2. And n-p = 8 (from part (b)). So the null distribution of the test is $$F \sim F_{q, n - p} \sim F_{2, 8}$$. To determine the value of the F-statistic, we can fit the reduced model and compare it with the full model using the `anova` function.
+
+```{r}
+lm_fit_punting_reduced_g <- lm(Distance ~ I(RStr + LStr) + I(RFlex + LFlex), data = punting)
+lm_fit_punting_reduced_g |> summary()
+anova(lm_fit_punting_reduced_g, lm_fit_punting)
+```
+
+We see from the output that the value of the F-statistic is 1.25. So the p-value (calculated the same as in parts (c) and (f) with the value of the test statistic and q changed) is:
+
+```{r}
+1-pf(1.25, 2, 8)
+```
+
+The calculated p-value matches the p-value in the `anova` function output. This p-value is larger than 0.05. Thus, we fail to reject the null hypothesis at the 5% significance level. That is, we do not have evidence for asymmetry in leg strength or flexibility. 
 
 ### Part (h)
 Here we fit a model with `Hang` as the response and the same four predictors.
@@ -313,7 +352,7 @@ lm_fit_punting_hang <- lm(Hang ~ RStr + LStr + RFlex + LFlex, data = punting)
 lm_fit_punting_hang |> summary()
 ```
 
-We have not discussed a test which allows us to compare this model to that in (a). The general F-test assumes one model in the comparison is a nested model of the other and has the same response variable. If we compare this model to that in (a), we have different response variables. 
+We have not discussed a test which allows us to compare this model to that in (a). The general F-test assumes one model in the comparison is a nested model of the other and has the same response variable. This is clearly not the case for this model relative to that in part (a), so we cannot use the general F-test as discussed. 
 
 
 ## Problem 5
@@ -523,6 +562,116 @@ We see from the output that our F-statistic is 0.7106423. This matches the F-sta
 We see that the calculated p-value matches that from both the `ftest` function and the ST503R-3 document. This p-value is greater than 0.05, so we fail to reject the null hypothesis at the 5% significance level. That is, we do not have evidence that the full model explains more variability in the response than the reduced model. 
 
 ## Problem 7
+For this question we use the commercial property data set. We start by importing the data.
+
+```{r}
+property <- read.table('commercial_property_data.txt', header = TRUE)
+```
+
+Then we view the structure of the data and the first few rows.
+
+```{r}
+str(property)
+head(property)
+```
+
+Now we fit a regression model with `rental_rates` as the response and the other four variables as predictors.
+
+```{r}
+lm_fit_property <- lm(rental_rates ~., data = property)
+lm_fit_property |> summary()
+```
+
+### Part (a)
+The fitted (estimated) regression equation is $$\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1X_1 + \hat{\beta}_2X_2 + \hat{\beta}_3X_3 + \hat{\beta}_4X_4$$, where $$Y = rental \ rates$$
+$$X_1 = age$$
+$$X_2 = operating \ expenses \ and \ taxes$$
+$$X_3 = vacancy \ rates$$
+$$X_4 = total \ square \ footage$$
+
+### Part (b)
+For this problem we use the output from the model fit summary:
+
+```{r}
+lm_fit_property |> summary()
+```
+
+The estimated slope for age is -0.142 and is significant at the 0.001 significance level. This means that for every one unit increase in age, we expect, on average, a decrease in rental rates by 0.142 units, assuming all other predictors are held constant. 
+
+The estimated slope for operating expenses and taxes is 0.282 and is significant at the 0.001 significance level. This means that for every one unit increase in operating expenses and taxes, we expect, on average, an increase in rental rates by 0.282 units, assuming all other predictors are held constant. 
+
+The estimated slope for vacancy rates is 0.6193, but it is not significant at the 0.10 significance level or smaller levels. Therefore we do not have evidence that the true value for this slope is different from 0. So we refrain from making any interpretation of the estimate.
+
+The estimated slope for total square footage is 7.924e-06 and is significant at the 0.001 significance level. This means that for every one unit increase in total square footage, we expect, on average, an increase in rental rates by 7.924e-06 units, assuming all other predictors are held constant.
+
+### Part (c)
+Here with give the R squared and adjusted R squared values. Since the number of predictors is 4, we have p-1=4, so p=5. And n=81.
+
+```{r}
+p <- 5
+n <- 81
+
+SSE_property <- t(lm_fit_property$residuals)%*%lm_fit_property$residuals
+
+SST_property <- t(property$rental_rates - mean(property$rental_rates))%*%(property$rental_rates - mean(property$rental_rates))
+
+R_squared_property <- 1-(SSE_property/SST_property)
+adj_R_squared_property <- 1-(SSE_property*(n-1)/SST_property/(n-p))
+
+R_squared_property
+adj_R_squared_property
+```
+
+We see our calculated values for R squared (0.5847496) and adjusted R squared (0.5628943) match those provided in the model fit summary above. 
+
+### Part (d)
+Here we conduct a significance test for the null hypothesis that the four regression coefficients for the explanatory variables are all zero. So we have our null hypothesis $$\beta_1 = \beta_2 = \beta_3 = \beta_4 = 0$$ versus the alternative hypothesis that at least one of these beta parameters is non-zero. Under the null hypothesis our F-statistic takes the form $$F_{obs} = \frac{MSR}{MSE}$$ and has null distribution $$F \sim F_{p - 1, n - p}$$, where p-1 is the number of predictors, so p-1=4, meaning p=5. n=81 as the number of observations in the training data, so n-p = 81-5 = 76. We can view the model fit summary to obtain the value of the F-statistic.
+
+```{r}
+lm_fit_property |> summary()
+```
+
+We see from the output that the value of the F-statistic is 26.76. So our p-value takes the form $$p = P(F \ge F_{obs}) = 1 - P(F < F_{obs})$$, which we calculate in R as follows:
+
+```{r}
+1-pf(26.76, 4, 76)
+```
+
+We obtain a p-value of 7.238654e-14, which is very close to that provided in the model fit summary output, the small difference likely a consequence of differences in floating point arithmetic handling between our calculation and that in the `lm` function. This p-value is much smaller than 0.05, so we reject the null hypothesis at the 5% significance level. That is, we have evidence that at least one beta parameter (for the coefficients) is non-zero. 
+
+### Part (e)
+Our null hypothesis is that $$\beta_3 = \beta_4 = 0$$, versus the alternative that at least one of beta3 or beta4 is non-zero. We can formulate this as a general F-test using a reduced model with the linear constraints $$\beta_3 = \beta_4 = 0$$. Then our test statistic is $$F_{obs} = \frac{\frac{SSE_{reduced} - SSE_{full}}{q}}{\frac{SSE_{full}}{n - p}}$$, where q is the difference in dimension between the full and reduced models, and n,p come from the full model. Since we have two linear constraints, q=2. And we know n-p=76 from part (c). Then the null distribution is $$F \sim F_{2, 76}$$. We can determine the F-statistic by fitting the reduced model and using the `anova` function.
+
+```{r}
+lm_fit_property_reduced <- lm(rental_rates ~ age + opp_expenses, data = property)
+anova(lm_fit_property_reduced, lm_fit_property)
+```
+
+We see from the output that our F-statistic is 19.616. The p-value is then given by $$p = P(F \ge F_{obs}) = 1 - P(F < F_{obs})$$. It can be calculated in R as follows:
+
+```{r}
+1-pf(19.616, 2, 76)
+```
+
+We see that our calculated p-value of 1.352504e-07 agrees with the output in the `anova` function above. Since p is very small, we reject the null hypothesis at the 5% significance level. That is, we have evidence that at least one of beta3 or beta4 is non-zero. In the language of the general F-test, we reject the null hypothesis that the reduced model explains as much of the variability in the response as the full model does. This implies that beta3 and beta4 are unlikely to be simultaneously 0. 
+
+### Part (f)
+We repeat the test from part (e) using the `ftest` function. The hypotheses, test statistic, null distribution (including df), and p-value are all the same as in part (e). To conduct the test with the `ftest` function, we need the A matrix and b vector which impose the linear constraint $$A\beta = b$$ onto the parameter vector $$\beta = (\beta_0, \beta_1, \beta_2, \beta_3, \beta_4)^T$$. The A matrix is $$A = \begin{pmatrix}
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{pmatrix}$$, and the b vector is $$b = \begin{pmatrix}
+0 \\
+0
+\end{pmatrix}$$. So now we have all the information we need to use the `ftest` function.
+
+```{r}
+ftest(lm_fit_property, matrix(c(0,0,0,0,0,0,1,0,0,1), nrow = 2, ncol = 5), b = 0)
+```
+
+We see from the output that we get the same F-statistic, null distribution degrees of freedom (2 and 76), and p-value as we did in part (e). Thus we make the same conclusion as we did in part (e).
+
+### Part (f)
+
 
 
 
