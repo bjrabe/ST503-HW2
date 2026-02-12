@@ -859,7 +859,7 @@ F-statistic: 20.86 on 8 and 88 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <p>So the predicted <code>lpsa</code> for this patient is 2.389053. Now we estimate the 95% CI of the predicted <code>lpsa</code> for this patient, which is commonly called the prediction interval. The formula for this interval is based on the distribution of the following pivotal quantity <span class="math display">\[\frac{\hat{Y}^* - Y^*}
-{\hat{\sigma}[1 + (c^*)^T(X^TX)^-1(c^*)]} \sim t_{n - p}\]</span>. From this distribution we can determine the 95% CI (prediction interval). We can calculate it with the <code>predict</code> function.</p>
+{\hat{\sigma}\sqrt{1 + (c^*)^T(X^TX)^{-1}(c^*)}} \sim t_{n - p}\]</span>. From this distribution we can determine the 95% CI (prediction interval). We can calculate it with the <code>predict</code> function.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(lm_fit_prostate, <span class="at">newdata =</span> new_data, <span class="at">interval =</span> <span class="st">'prediction'</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -867,7 +867,7 @@ F-statistic: 20.86 on 8 and 88 DF,  p-value: &lt; 2.2e-16</code></pre>
 1 2.389053 0.9646584 3.813447</code></pre>
 </div>
 </div>
-<p>So the 95% CI/prediction interval for the new value is (0.9646584, 3.813447).</p>
+<p>So the 95% CI/prediction interval for the new value of <code>lpsa</code> is (0.9646584, 3.813447).</p>
 </section>
 <section id="part-b-3" class="level3">
 <h3 class="anchored" data-anchor-id="part-b-3">Part (b)</h3>
@@ -952,8 +952,8 @@ F-statistic: 51.99 on 3 and 93 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <p>The width of the confidence interval is 3.806724 - 0.9383436 = 2.8683804.</p>
-<p>Compare this with the original models where the width of the confidence intervals were 3.813447 - 0.9646584 = 2.8487886 (part (a)) and 5.006707 - 1.538744 = 3.467963.</p>
-<p>The CI of the reduced model is very slightly wider than that for the prediction made by the full model using age 65, but the CI of the reduced model is quite smaller than the CI for the prediction made by the full model using age 65. Thus from this perspective, the reduced model may be preferable. However, we may lose valuable prediction information. An F-test would be enlightening to compare the models.</p>
+<p>Compare this with the original models where the width of the confidence intervals were 3.813447 - 0.9646584 = 2.8487886 (part (a)) and 5.006707 - 1.538744 = 3.467963 (part (b)).</p>
+<p>The CI of the reduced model is very slightly wider than that for the prediction made by the full model using age 65, but the CI of the reduced model is quite smaller than the CI for the prediction made by the full model using age 20. Thus from the perspective of confidence interval widths, the reduced model may be preferable. However, we may lose valuable prediction information when eliminating predictors. An F-test would be enlightening to compare the models.</p>
 </section>
 </section>
 <section id="problem-6" class="level2">

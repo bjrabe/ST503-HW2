@@ -384,13 +384,13 @@ predict(lm_fit_prostate, newdata = new_data)
 ```
 
 So the predicted `lpsa` for this patient is 2.389053. Now we estimate the 95% CI of the predicted `lpsa` for this patient, which is commonly called the prediction interval. The formula for this interval is based on the distribution of the following pivotal quantity $$\frac{\hat{Y}^* - Y^*}
-{\hat{\sigma}[1 + (c^*)^T(X^TX)^-1(c^*)]} \sim t_{n - p}$$. From this distribution we can determine the 95% CI (prediction interval). We can calculate it with the `predict` function.
+{\hat{\sigma}\sqrt{1 + (c^*)^T(X^TX)^{-1}(c^*)}} \sim t_{n - p}$$. From this distribution we can determine the 95% CI (prediction interval). We can calculate it with the `predict` function.
 
 ```{r}
 predict(lm_fit_prostate, newdata = new_data, interval = 'prediction', level = 0.95)
 ```
 
-So the 95% CI/prediction interval for the new value is (0.9646584, 3.813447).
+So the 95% CI/prediction interval for the new value of `lpsa` is (0.9646584, 3.813447).
 
 ### Part (b)
 Now we repeat the last question for a patient with the same values except that he is age 20. First we update the `new_data` data frame and then we recalculate the point and interval estimates.
@@ -426,9 +426,9 @@ predict(lm_fit_prostate_refit, newdata = new_data, interval = 'prediction', leve
 
 The width of the confidence interval is 3.806724 - 0.9383436 = 2.8683804.
 
-Compare this with the original models where the width of the confidence intervals were 3.813447 - 0.9646584 = 2.8487886 (part (a)) and 5.006707 - 1.538744 = 3.467963. 
+Compare this with the original models where the width of the confidence intervals were 3.813447 - 0.9646584 = 2.8487886 (part (a)) and 5.006707 - 1.538744 = 3.467963 (part (b)). 
 
-The CI of the reduced model is very slightly wider than that for the prediction made by the full model using age 65, but the CI of the reduced model is quite smaller than the CI for the prediction made by the full model using age 65. Thus from this perspective, the reduced model may be preferable. However, we may lose valuable prediction information. An F-test would be enlightening to compare the models. 
+The CI of the reduced model is very slightly wider than that for the prediction made by the full model using age 65, but the CI of the reduced model is quite smaller than the CI for the prediction made by the full model using age 20. Thus from the perspective of confidence interval widths, the reduced model may be preferable. However, we may lose valuable prediction information when eliminating predictors. An F-test would be enlightening to compare the models. 
 
 
 ## Problem 6
